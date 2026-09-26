@@ -184,14 +184,14 @@ canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
       <button class="skip" id="skip" type="button">Skip to layers</button>
     </div>
     <div class="rail" id="rail"></div>
-    <div class="load" id="load">Loading frames 0 / 99</div>
+    <div class="load" id="load">Loading frames</div>
   </div>
 </div>
 
 <script>
 (function(){
-const N=99, IW=1920, IH=1080, U=9;              // frames, image size, scroll length in screens
-const FR=i=>'f/'+String(i+1).padStart(3,'0')+'.webp';
+const N=198, IW=1920, IH=1080, U=9;              // frames, image size, scroll length in screens
+const FR=i=>'g/'+String(i+1).padStart(3,'0')+'.webp';
 
 /* Layers, outside to inside. x/y = anchor on the render; ly = label row. Costs are placeholders. */
 const L=[
@@ -241,9 +241,9 @@ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 /* ---------- frames ---------- */
 const imgs=new Array(N), ok=new Array(N).fill(false); let loaded=0;
 const loadEl=document.getElementById('load');
-function load(i){return new Promise(r=>{const im=new Image();im.decoding='async';im.onload=()=>{ok[i]=true;loaded++;loadEl.textContent='Loading frames '+loaded+' / '+N;if(loaded===N){loadEl.style.opacity=0;}draw(true);r()};im.onerror=()=>{loaded++;r()};im.src=FR(i);imgs[i]=im;});}
+function load(i){return new Promise(r=>{const im=new Image();im.decoding='async';im.onload=()=>{ok[i]=true;loaded++;loadEl.textContent='Loading frames '+loaded+' / '+N;if(loaded>=26){loadEl.style.opacity=0;}draw(true);r()};im.onerror=()=>{loaded++;r()};im.src=FR(i);imgs[i]=im;});}
 // first frame, the last frame, then everything in order, a few at a time
-(async()=>{await load(5);await load(N-1);const q=[];for(let i=0;i<N;i++)if(i!==5&&i!==N-1)q.push(i);
+(async()=>{await load(10);await load(N-1);const q=[],seen=new Set([10,N-1]);for(const st of [16,8,4,2,1])for(let i=0;i<N;i+=st)if(!seen.has(i)){seen.add(i);q.push(i);}
   const run=async()=>{while(q.length){await load(q.shift());}};await Promise.all([run(),run(),run(),run()]);})();
 function near(i){if(ok[i])return imgs[i];for(let d=1;d<N;d++){if(i-d>=0&&ok[i-d])return imgs[i-d];if(i+d<N&&ok[i+d])return imgs[i+d];}return null;}
 
@@ -251,9 +251,9 @@ function near(i){if(ok[i])return imgs[i];for(let d=1;d<N;d++){if(i-d>=0&&ok[i-d]
 const lerp=(a,b,t)=>a+(b-a)*t, clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
 function frameAt(u){
-  if(u<.7) return 5;
-  if(u<3.2) return lerp(5,50,ease((u-.7)/2.5));
-  if(u<5.4) return lerp(50,N-1,ease((u-3.2)/2.2));
+  if(u<.7) return 10;
+  if(u<3.2) return lerp(10,100,ease((u-.7)/2.5));
+  if(u<5.4) return lerp(100,N-1,ease((u-3.2)/2.2));
   return N-1;
 }
 const LAY0=5.6, LAYS=.245;
@@ -337,14 +337,14 @@ addEventListener('resize',size);
 let lastDrawn=-1;
 function draw(force){
   const u=cur, v=view(u), f=frameAt(u);
-  const i0=Math.floor(f), i1=Math.min(N-1,i0+1), a=f-i0;
-  const key=f.toFixed(3)+'|'+v.s.toFixed(4)+'|'+v.ox.toFixed(1)+'|'+v.oy.toFixed(1);
+  const i0=Math.round(f);
+  const key=i0+'|'+v.s.toFixed(4)+'|'+v.ox.toFixed(1)+'|'+v.oy.toFixed(1);
   if(force||key!==lastDrawn){
     lastDrawn=key;
     ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
     const A=near(i0);
     if(A){ctx.imageSmoothingQuality='high';ctx.globalAlpha=1;ctx.drawImage(A,v.ox,v.oy,IW*v.s,IH*v.s);
-      const B=ok[i1]?imgs[i1]:null; if(B&&a>.01&&i1!==i0){ctx.globalAlpha=a;ctx.drawImage(B,v.ox,v.oy,IW*v.s,IH*v.s);ctx.globalAlpha=1;}}
+    }
     // soft fade on the phone layout where the frame meets the page
     if(narrow){const y=v.oy+IH*v.s;const g=ctx.createLinearGradient(0,y-40,0,y+2);g.addColorStop(0,'rgba(236,235,232,0)');g.addColorStop(1,'rgba(236,235,232,1)');ctx.fillStyle=g;ctx.fillRect(0,y-40,W,42);
       const g2=ctx.createLinearGradient(0,v.oy-2,0,v.oy+30);g2.addColorStop(0,'rgba(223,230,236,1)');g2.addColorStop(1,'rgba(223,230,236,0)');ctx.fillStyle=g2;ctx.fillRect(0,v.oy-2,W,32);}
@@ -376,7 +376,8 @@ function draw(force){
   $('rail').style.width=(u/U*100)+'%';
 }
 function tick(){
-  const d=target-cur;cur=reduce?target:(Math.abs(d)<.0005?target:cur+d*.14);
+  const now=performance.now(),dt=Math.min(64,now-(tick.t||now));tick.t=now;
+  const d=target-cur,k=1-Math.pow(1-.12,dt/16.67);cur=reduce?target:(Math.abs(d)<.0005?target:cur+d*k);
   draw(false);requestAnimationFrame(tick);
 }
 size();cur=target;requestAnimationFrame(tick);
