@@ -1,0 +1,384 @@
+<title>Inside the Wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  color-scheme:light;
+  --ink:#16191d;
+  --ink-2:#4b525b;
+  --ink-3:#7c848e;
+  --paper:#f4f5f4;
+  --glass:rgba(248,249,248,.86);
+  --line:rgba(22,25,29,.14);
+  --ochre:#c38a2c;
+  --ochre-soft:#f3e3c4;
+  --sky:#dfe6ec;
+  --pave:#ecebe8;
+  --cond:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:Barlow,"Helvetica Neue",Arial,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+html,body{background:var(--paper);color:var(--ink)}
+body{font-family:var(--body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;margin:0}
+#track{position:relative}
+#stage{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;background:linear-gradient(180deg,var(--sky),var(--pave))}
+canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* soft white wash on the left, echoing the film's own vignette */
+.wash{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(246,247,246,.94) 0%,rgba(246,247,246,.78) 28%,rgba(246,247,246,0) 52%);opacity:var(--wash,1);transition:opacity .2s linear}
+
+/* chapter copy */
+.chap{position:absolute;left:clamp(20px,5vw,72px);bottom:clamp(28px,9vh,96px);max-width:min(30rem,calc(100% - 40px));pointer-events:none;will-change:opacity,transform}
+.eyebrow{font-family:var(--cond);font-weight:600;font-size:.82rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin:0 0 .6rem;display:flex;gap:.6rem;align-items:center}
+.eyebrow i{display:inline-block;width:22px;height:3px;background:var(--ochre)}
+.chap h1,.chap h2{font-family:var(--cond);font-weight:700;text-transform:uppercase;letter-spacing:-.005em;line-height:.92;margin:0 0 .8rem;text-wrap:balance}
+.chap h1{font-size:clamp(3rem,8.4vw,6.6rem)}
+.chap h2{font-size:clamp(2.1rem,5vw,3.6rem)}
+.chap p{margin:0;color:var(--ink-2);font-size:clamp(1rem,1.35vw,1.14rem);max-width:34ch}
+.cue{margin-top:1.4rem;display:flex;align-items:center;gap:.7rem;font-family:var(--cond);font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3)}
+.cue b{display:block;width:1px;height:34px;background:var(--ink-3);position:relative;overflow:hidden}
+.cue b::after{content:"";position:absolute;left:0;top:-40%;width:1px;height:40%;background:var(--ink);animation:drip 1.8s ease-in-out infinite}
+@keyframes drip{to{top:110%}}
+
+/* overlay locked to the image */
+#ov{position:absolute;left:0;top:0;transform-origin:0 0;pointer-events:none}
+#ov svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#ov .ld{fill:none;stroke:var(--ink);stroke-width:3}
+#ov .ld.on{stroke:var(--ochre);stroke-width:4}
+#ov .dot{fill:var(--ink)}
+#ov .dot.on{fill:var(--ochre)}
+#ov .ring{fill:none;stroke:var(--ochre);stroke-width:3;opacity:0}
+#ov .ring.on{opacity:1;animation:pulse 1.6s ease-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes pulse{from{transform:scale(.6);opacity:1}to{transform:scale(2.2);opacity:0}}
+.lbl{position:absolute;transform:translate(-100%,-50%);pointer-events:auto;background:none;border:0;padding:6px 0 6px 12px;cursor:pointer;font-family:var(--cond);font-weight:700;font-size:25px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);white-space:nowrap;display:flex;align-items:center;gap:10px}
+.lbl .n{font-family:var(--mono);font-weight:400;font-size:15px;color:var(--ink-3);letter-spacing:0}
+.lbl:hover,.lbl.on{color:var(--ochre)}
+.lbl:focus-visible{outline:3px solid var(--ochre);outline-offset:4px}
+.hit{position:absolute;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:none;border:0;pointer-events:auto;cursor:pointer}
+.hit:focus-visible{outline:3px solid var(--ochre)}
+.num{display:none;position:absolute;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--mono);font-size:20px;font-weight:600;align-items:center;justify-content:center;border:3px solid #fff;pointer-events:auto;cursor:pointer;padding:0}
+.num.on{background:var(--ochre)}
+
+/* right column: header, layer card, build-up */
+.side{position:absolute;right:clamp(16px,2.6vw,40px);top:clamp(16px,4vh,40px);bottom:clamp(16px,4vh,40px);width:min(360px,34vw);display:flex;flex-direction:column;gap:12px;pointer-events:none;justify-content:flex-start}
+.panel{background:var(--glass);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);border:1px solid rgba(255,255,255,.7);box-shadow:0 18px 40px -22px rgba(20,25,30,.45);pointer-events:auto}
+.head{padding:14px 16px}
+.head .eyebrow{margin:0 0 .2rem}
+.head h3{font-family:var(--cond);font-weight:700;font-size:1.6rem;text-transform:uppercase;margin:0;line-height:1}
+.head .hint{margin:.45rem 0 0;font-size:.9rem;color:var(--ink-2)}
+.card{padding:18px 18px 16px;display:flex;flex-direction:column;gap:12px}
+.card .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card .idx{font-family:var(--mono);font-size:.78rem;color:var(--ink-3)}
+.card .x{background:none;border:0;font-family:var(--cond);font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);cursor:pointer;padding:4px}
+.card h4{font-family:var(--cond);font-weight:700;font-size:2rem;line-height:.95;text-transform:uppercase;margin:0;display:flex;align-items:center;gap:10px}
+.card h4 .sw{width:16px;height:16px;flex:none;border:1px solid rgba(0,0,0,.2)}
+.card p{margin:0;color:var(--ink-2);font-size:.97rem}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:.88rem}
+.card dt{font-family:var(--cond);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-size:.76rem;padding-top:2px}
+.card dd{margin:0}
+.cost{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:12px}
+.cost .v{font-family:var(--mono);font-weight:600;font-size:1.9rem;line-height:1;font-variant-numeric:tabular-nums}
+.cost .v small{font-size:.8rem;font-weight:400;color:var(--ink-3);margin-left:4px}
+.cost .share{font-family:var(--mono);font-size:.8rem;color:var(--ink-2);text-align:right}
+.nav{display:flex;gap:8px}
+.nav button{flex:1;font-family:var(--cond);font-weight:600;font-size:.86rem;letter-spacing:.12em;text-transform:uppercase;background:transparent;border:1px solid var(--line);padding:9px 8px;cursor:pointer;color:var(--ink)}
+.nav button:hover{border-color:var(--ink)}
+.nav button:focus-visible,.card .x:focus-visible{outline:3px solid var(--ochre);outline-offset:2px}
+.build{padding:14px 16px;margin-top:auto}
+.build .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.build .t{font-family:var(--cond);font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2)}
+.build .sum{font-family:var(--mono);font-weight:600;font-size:1.05rem;font-variant-numeric:tabular-nums}
+.bar{display:flex;height:22px;margin:10px 0 8px;gap:2px}
+.bar button{border:0;padding:0;cursor:pointer;height:100%;min-width:4px;opacity:.9;outline-offset:2px;position:relative}
+.bar button.on{opacity:1;box-shadow:inset 0 0 0 2px var(--ink)}
+.bar button:not(.seen){opacity:.12}
+.bar button:focus-visible{outline:3px solid var(--ochre)}
+.build .note{margin:0;font-size:.76rem;color:var(--ink-3);line-height:1.35}
+.side .panel{transition:opacity .35s ease,transform .35s ease}
+.side.off .panel{opacity:0;transform:translateY(8px);pointer-events:none}
+
+/* top chrome */
+.chrome{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;align-items:center;padding:14px clamp(16px,2.6vw,40px);pointer-events:none}
+.brand{font-family:var(--cond);font-weight:600;font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2)}
+.skip{pointer-events:auto;font-family:var(--cond);font-weight:600;font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;background:var(--glass);border:1px solid rgba(255,255,255,.7);padding:8px 12px;cursor:pointer;color:var(--ink)}
+.skip:focus-visible{outline:3px solid var(--ochre)}
+.rail{position:absolute;left:0;bottom:0;height:3px;background:var(--ochre);width:0}
+.load{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--mono);font-size:.8rem;color:var(--ink-2);background:var(--glass);padding:8px 12px;pointer-events:none;transition:opacity .4s}
+
+/* list for small screens */
+.chips{display:none}
+
+@media (max-width:760px), (max-aspect-ratio:11/10){
+  .wash{display:none}
+  .lbl,#ov .ld{display:none}
+  .num{display:flex}
+  .chap{bottom:auto;top:calc(var(--imgBottom,60vh) + 18px);left:20px;right:20px}
+  .chap h1{font-size:clamp(2.6rem,13vw,4rem)}
+  .chap h2{font-size:clamp(1.9rem,9vw,2.6rem)}
+  .side{left:12px;right:12px;width:auto;top:calc(var(--imgBottom,55vh) + 10px);bottom:12px;gap:8px}
+  .head{display:none}
+  .card{padding:14px;gap:9px}
+  .card h4{font-size:1.6rem}
+  .card dl{display:none}
+  .cost .v{font-size:1.5rem}
+  .build{padding:10px 12px}
+  .build .note{display:none}
+  .bar{height:16px;margin:8px 0 2px}
+  .brand{display:none}
+  .side{overflow:auto}
+  .num{width:34px;height:34px;font-size:16px;border-width:2px}
+}
+@media (prefers-reduced-motion:reduce){
+  .cue b::after,#ov .ring.on{animation:none}
+}
+</style>
+
+<div id="track">
+  <div id="stage">
+    <canvas id="cv" aria-label="Animated cutaway of a medium-rise apartment block, opening to show a through-wall steel framing system"></canvas>
+    <div class="wash" id="wash"></div>
+
+    <div id="ov" aria-hidden="false"></div>
+
+    <section class="chap" data-in="-1" data-out="0.6" id="c0">
+      <p class="eyebrow"><i></i>Building envelope &middot; Through-wall SFS</p>
+      <h1>Inside<br>the wall</h1>
+      <p>A five-storey apartment block, opened up to show the steel-framed wall system behind its façade.</p>
+      <div class="cue"><b></b>Scroll to open the wall</div>
+    </section>
+    <section class="chap" data-in="1.0" data-out="3.1">
+      <p class="eyebrow"><i></i>The cutaway</p>
+      <h2>The façade steps away floor by floor</h2>
+      <p>Each storey peels back one layer further than the one below, so the whole build-up shows at once, from cladding outside to plasterboard inside.</p>
+    </section>
+    <section class="chap" data-in="3.55" data-out="5.25">
+      <p class="eyebrow"><i></i>The detail</p>
+      <h2>Eleven parts between street and room</h2>
+      <p>Rainscreen and fire protection outside, the weather line in the middle, then the steel frame and its lining.</p>
+    </section>
+
+    <div class="side off" id="side">
+      <div class="panel head">
+        <p class="eyebrow"><i></i>Wall build-up</p>
+        <h3 id="headT">Outside to inside</h3>
+        <p class="hint" id="headH">Keep scrolling to name each layer.</p>
+      </div>
+      <div class="panel card" id="card" hidden>
+        <div class="top"><span class="idx" id="cIdx">01 / 11</span><button class="x" id="cClose" type="button">Close</button></div>
+        <h4><span class="sw" id="cSw"></span><span id="cName">Fibre cement cladding</span></h4>
+        <p id="cDesc"></p>
+        <dl id="cSpec"></dl>
+        <div class="cost"><div class="v" id="cCost">£95<small>/m²</small></div><div class="share" id="cShare">37% of wall cost</div></div>
+        <div class="nav"><button type="button" id="cPrev">&larr; Outer</button><button type="button" id="cNext">Inner &rarr;</button></div>
+      </div>
+      <div class="panel build" id="build">
+        <div class="row"><span class="t">Indicative cost</span><span class="sum" id="sum">£0 /m²</span></div>
+        <div class="bar" id="bar" role="group" aria-label="Cost share by layer"></div>
+        <p class="note">Placeholder rates per m² of wall for the prototype. Replace with real figures before publishing.</p>
+      </div>
+    </div>
+
+    <div class="chrome">
+      <span class="brand">Sarvesh Chitnis &middot; 3D &amp; motion</span>
+      <button class="skip" id="skip" type="button">Skip to layers</button>
+    </div>
+    <div class="rail" id="rail"></div>
+    <div class="load" id="load">Loading frames 0 / 99</div>
+  </div>
+</div>
+
+<script>
+(function(){
+const N=99, IW=1920, IH=1080, U=9;              // frames, image size, scroll length in screens
+const FR=i=>'f/'+String(i+1).padStart(3,'0')+'.webp';
+
+/* Layers, outside to inside. x/y = anchor on the render; ly = label row. Costs are placeholders. */
+const L=[
+ {k:'Fibre cement cladding',s:'Cladding',x:1600,y:962,ly:962,c:95,col:'#9d5a3c',
+  d:'Fibre cement rainscreen panels. The finished face of the building, hung clear of the wall so any water that gets behind drains away down the cavity.',
+  sp:[['Type','Fibre cement panel'],['Fixing','Clips onto vertical rails']]},
+ {k:'Rainscreen insulation',s:'Rainscreen insulation',x:1335,y:890,ly:890,c:22,col:'#dcb57a',
+  d:'Mineral wool slabs fixed outside the sheathing. Wrapping the frame from the outside keeps the steel warm and cuts cold bridging at every stud.',
+  sp:[['Material','Stone mineral wool'],['Position','In the ventilated cavity']]},
+ {k:'Fire barriers',s:'Fire barriers',x:1182,y:819,ly:819,c:8,col:'#e9e8e3',
+  d:'Cavity barriers at each floor line and around openings. They stop fire and smoke travelling up the gap behind the cladding.',
+  sp:[['Type','Open-state cavity barrier'],['Where','Floor lines and openings']]},
+ {k:'Brackets & rails',s:'Bracket & rails',x:1295,y:747,ly:747,c:30,col:'#b7bcc2',
+  d:'Aluminium brackets fixed back through to the SFS frame, carrying the vertical rails the cladding hangs on. They set the depth of the cavity.',
+  sp:[['Material','Aluminium'],['Sets','Cavity depth and line']]},
+ {k:'Breather membrane',s:'Breather membrane',x:1258,y:676,ly:676,c:5,col:'#4a4e54',
+  d:'A vapour-permeable, water-resistant sheet. It keeps wind-driven rain off the boards while letting moisture from inside escape.',
+  sp:[['Role','Weather line'],['Property','Vapour-open']]},
+ {k:'Sheathing boards',s:'Sheathing boards',x:1104,y:604,ly:604,c:24,col:'#a9aaa8',
+  d:'Cement-based boards screwed to the outer face of the studs. They brace the frame and give the membrane and brackets something solid to fix to.',
+  sp:[['Type','Cement-based board'],['Role','Bracing and substrate']]},
+ {k:'Insulation',s:'Insulation',x:982,y:545,ly:436,c:12,col:'#e2c08a',
+  d:'Mineral wool fitted between the studs, adding thermal and acoustic performance inside the frame.',
+  sp:[['Material','Mineral wool'],['Position','Between studs']]},
+ {k:'SFS studs',s:'SFS studs',x:880,y:348,ly:349,c:34,col:'#c6cace',
+  d:'Light-gauge galvanised steel C-sections spanning slab to slab. The structural frame of the infill wall, carrying wind load back to the floors.',
+  sp:[['Material','Galvanised steel'],['Spans','Floor to floor']]},
+ {k:'SFS head track',s:'SFS head',x:1322,y:122,ly:285,c:5,col:'#9fa5ac',
+  d:'A deflection track fixed under the slab above. It lets the slab move without pushing load down into the studs.',
+  sp:[['Fixed to','Underside of slab'],['Allows','Slab deflection']]},
+ {k:'SFS base track',s:'SFS base',x:1273,y:45,ly:220,c:4,col:'#8d949b',
+  d:'Track fixed to the slab that locates the foot of every stud.',
+  sp:[['Fixed to','Top of slab'],['Role','Locates the studs']]},
+ {k:'Plasterboard',s:'Plasterboard',x:1090,y:130,ly:130,c:18,col:'#f4f4f2',
+  d:'The internal lining, taped, finished and decorated. The only layer the residents ever see.',
+  sp:[['Type','Gypsum board'],['Finish','Taped and painted']]}
+];
+const TOTAL=L.reduce((a,b)=>a+b.c,0);
+const LABEL_X=520;
+
+const cv=document.getElementById('cv'), ctx=cv.getContext('2d');
+const stage=document.getElementById('stage'), track=document.getElementById('track');
+const ov=document.getElementById('ov'), side=document.getElementById('side'), wash=document.getElementById('wash');
+const chaps=[...document.querySelectorAll('.chap')];
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------- frames ---------- */
+const imgs=new Array(N), ok=new Array(N).fill(false); let loaded=0;
+const loadEl=document.getElementById('load');
+function load(i){return new Promise(r=>{const im=new Image();im.decoding='async';im.onload=()=>{ok[i]=true;loaded++;loadEl.textContent='Loading frames '+loaded+' / '+N;if(loaded===N){loadEl.style.opacity=0;}draw(true);r()};im.onerror=()=>{loaded++;r()};im.src=FR(i);imgs[i]=im;});}
+// first frame, the last frame, then everything in order, a few at a time
+(async()=>{await load(5);await load(N-1);const q=[];for(let i=0;i<N;i++)if(i!==5&&i!==N-1)q.push(i);
+  const run=async()=>{while(q.length){await load(q.shift());}};await Promise.all([run(),run(),run(),run()]);})();
+function near(i){if(ok[i])return imgs[i];for(let d=1;d<N;d++){if(i-d>=0&&ok[i-d])return imgs[i-d];if(i+d<N&&ok[i+d])return imgs[i+d];}return null;}
+
+/* ---------- timeline (in screens of scroll) ---------- */
+const lerp=(a,b,t)=>a+(b-a)*t, clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const ease=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+function frameAt(u){
+  if(u<.7) return 5;
+  if(u<3.2) return lerp(5,50,ease((u-.7)/2.5));
+  if(u<5.4) return lerp(50,N-1,ease((u-3.2)/2.2));
+  return N-1;
+}
+const LAY0=5.6, LAYS=.245;
+function revealAt(u,i){return clamp((u-LAY0-i*LAYS)/(LAYS*1.1),0,1);}
+
+/* ---------- view: how the frame sits on screen ---------- */
+let W=0,H=0,DPR=1,narrow=false;
+function view(u){
+  if(!narrow){const s=Math.max(W/IW,H/IH);const cx=lerp(960,1010,clamp((u-3.2)/2.2,0,1));
+    let ox=W/2-cx*s;ox=clamp(ox,W-IW*s,0);return{s,ox,oy:(H-IH*s)/2};}
+  // phones: fit a region across the width, parked high so text sits below
+  const t=ease(clamp((u-3.2)/2.2,0,1));
+  const span=lerp(1500,860,t), cx=lerp(960,1245,t), s=W/span;
+  const top=lerp(H*.14, Math.max(56,H*.07), t);
+  return{s,ox:W/2-cx*s,oy:top};
+}
+
+/* ---------- overlay build ---------- */
+const NS='http://www.w3.org/2000/svg';
+const svg=document.createElementNS(NS,'svg');svg.setAttribute('viewBox','0 0 '+IW+' '+IH);ov.appendChild(svg);
+const parts=L.map((l,i)=>{
+  const pts=[[LABEL_X+14,l.ly],[l.x,l.ly],[l.x,l.y]];
+  const pl=document.createElementNS(NS,'polyline');pl.setAttribute('points',pts.map(p=>p.join(',')).join(' '));pl.setAttribute('class','ld');
+  const len=Math.abs(l.x-LABEL_X-14)+Math.abs(l.y-l.ly);pl.style.strokeDasharray=len;pl.style.strokeDashoffset=len;
+  const ring=document.createElementNS(NS,'circle');ring.setAttribute('cx',l.x);ring.setAttribute('cy',l.y);ring.setAttribute('r',14);ring.setAttribute('class','ring');
+  const dot=document.createElementNS(NS,'circle');dot.setAttribute('cx',l.x);dot.setAttribute('cy',l.y);dot.setAttribute('r',11);dot.setAttribute('class','dot');
+  svg.append(pl,ring,dot);
+  const b=document.createElement('button');b.type='button';b.className='lbl';b.style.left=LABEL_X+'px';b.style.top=l.ly+'px';
+  b.innerHTML='<span class="n">'+String(i+1).padStart(2,'0')+'</span>'+l.s;b.setAttribute('aria-label',l.k+', layer '+(i+1)+' of 11');
+  const h=document.createElement('button');h.type='button';h.className='hit';h.style.left=l.x+'px';h.style.top=l.y+'px';h.setAttribute('aria-label',l.k);h.tabIndex=-1;
+  const n=document.createElement('button');n.type='button';n.className='num';n.style.left=l.x+'px';n.style.top=l.y+'px';n.textContent=i+1;n.setAttribute('aria-label',l.k);
+  [b,h,n].forEach(e=>e.addEventListener('click',()=>select(i)));
+  ov.append(b,h,n);
+  return{pl,len,ring,dot,b,h,n};
+});
+ov.style.width=IW+'px';ov.style.height=IH+'px';
+
+/* build-up bar */
+const bar=document.getElementById('bar');
+const segs=L.map((l,i)=>{const s=document.createElement('button');s.type='button';s.style.flex=l.c;s.style.background=l.col;s.title=l.k+' · £'+l.c+'/m²';s.setAttribute('aria-label',l.k+', £'+l.c+' per square metre');s.addEventListener('click',()=>select(i));bar.appendChild(s);return s;});
+
+/* ---------- selection ---------- */
+let sel=-1;
+const card=document.getElementById('card');
+const $=id=>document.getElementById(id);
+function select(i){
+  sel=i;const l=L[i];card.hidden=false;
+  $('cIdx').textContent=String(i+1).padStart(2,'0')+' / 11';
+  $('cName').textContent=l.k;$('cSw').style.background=l.col;$('cDesc').textContent=l.d;
+  $('cSpec').innerHTML=l.sp.map(p=>'<dt>'+p[0]+'</dt><dd>'+p[1]+'</dd>').join('');
+  $('cCost').innerHTML='£'+l.c+'<small>/m²</small>';
+  $('cShare').textContent=Math.round(l.c/TOTAL*100)+'% of wall cost';
+  $('cPrev').disabled=i===0;$('cNext').disabled=i===L.length-1;
+  $('cPrev').style.visibility=i===0?'hidden':'visible';$('cNext').style.visibility=i===L.length-1?'hidden':'visible';
+  parts.forEach((p,j)=>{const on=j===i;p.pl.classList.toggle('on',on);p.dot.classList.toggle('on',on);p.ring.classList.toggle('on',on);p.b.classList.toggle('on',on);p.n.classList.toggle('on',on);segs[j].classList.toggle('on',on);});
+  // make sure every layer is named once someone starts exploring
+  if(cur<U-.3){jumpTo(U);}
+}
+function deselect(){sel=-1;card.hidden=true;parts.forEach((p,j)=>{['pl','dot','ring','b','n'].forEach(k=>p[k].classList.remove('on'));segs[j].classList.remove('on');});}
+$('cClose').onclick=deselect;$('cPrev').onclick=()=>select(Math.max(0,sel-1));$('cNext').onclick=()=>select(Math.min(L.length-1,sel+1));
+addEventListener('keydown',e=>{if(sel<0)return;if(e.key==='Escape')deselect();if(e.key==='ArrowDown'||e.key==='ArrowRight'){if(sel<10){e.preventDefault();select(sel+1);}}if(e.key==='ArrowUp'||e.key==='ArrowLeft'){if(sel>0){e.preventDefault();select(sel-1);}}});
+
+/* ---------- scroll ---------- */
+function scrollMax(){return track.offsetHeight-innerHeight;}
+function jumpTo(u){scrollTo({top:u/U*scrollMax(),behavior:reduce?'auto':'smooth'});}
+$('skip').onclick=()=>jumpTo(U);
+let target=0,cur=0;
+function readScroll(){target=clamp(scrollY/Math.max(1,scrollMax()),0,1)*U;}
+addEventListener('scroll',readScroll,{passive:true});
+
+function size(){
+  W=stage.clientWidth;H=stage.clientHeight;DPR=Math.min(2,devicePixelRatio||1);
+  cv.width=Math.round(W*DPR);cv.height=Math.round(H*DPR);
+  narrow=matchMedia('(max-width:760px), (max-aspect-ratio:11/10)').matches;
+  track.style.height=(H*(U+1))+'px';
+  readScroll();draw(true);
+}
+addEventListener('resize',size);
+
+/* ---------- render loop ---------- */
+let lastDrawn=-1;
+function draw(force){
+  const u=cur, v=view(u), f=frameAt(u);
+  const i0=Math.floor(f), i1=Math.min(N-1,i0+1), a=f-i0;
+  const key=f.toFixed(3)+'|'+v.s.toFixed(4)+'|'+v.ox.toFixed(1)+'|'+v.oy.toFixed(1);
+  if(force||key!==lastDrawn){
+    lastDrawn=key;
+    ctx.setTransform(DPR,0,0,DPR,0,0);ctx.clearRect(0,0,W,H);
+    const A=near(i0);
+    if(A){ctx.imageSmoothingQuality='high';ctx.globalAlpha=1;ctx.drawImage(A,v.ox,v.oy,IW*v.s,IH*v.s);
+      const B=ok[i1]?imgs[i1]:null; if(B&&a>.01&&i1!==i0){ctx.globalAlpha=a;ctx.drawImage(B,v.ox,v.oy,IW*v.s,IH*v.s);ctx.globalAlpha=1;}}
+    // soft fade on the phone layout where the frame meets the page
+    if(narrow){const y=v.oy+IH*v.s;const g=ctx.createLinearGradient(0,y-40,0,y+2);g.addColorStop(0,'rgba(236,235,232,0)');g.addColorStop(1,'rgba(236,235,232,1)');ctx.fillStyle=g;ctx.fillRect(0,y-40,W,42);
+      const g2=ctx.createLinearGradient(0,v.oy-2,0,v.oy+30);g2.addColorStop(0,'rgba(223,230,236,1)');g2.addColorStop(1,'rgba(223,230,236,0)');ctx.fillStyle=g2;ctx.fillRect(0,v.oy-2,W,32);}
+  }
+  // overlay follows the frame
+  ov.style.transform='translate('+v.ox+'px,'+v.oy+'px) scale('+v.s+')';
+  const imgBottom=v.oy+IH*v.s;stage.style.setProperty('--imgBottom',imgBottom+'px');
+  const numScale=1/v.s;parts.forEach(p=>{p.n.style.transform='translate(-50%,-50%) scale('+numScale+')';});
+
+  // chapter copy
+  chaps.forEach(c=>{const i=+c.dataset.in,o=+c.dataset.out;const fin=i<0?1:clamp((u-i)/.35,0,1),fout=clamp((o-u)/.35,0,1);const op=Math.min(fin,fout);
+    c.style.opacity=op;c.style.transform='translateY('+((1-fin)*24-(1-fout)*24)+'px)';c.style.visibility=op<.01?'hidden':'visible';});
+
+  // layers
+  let named=0;
+  parts.forEach((p,i)=>{const r=revealAt(u,i);if(r>=1)named++;
+    p.pl.style.strokeDashoffset=p.len*(1-ease(r));
+    const vis=r>0;p.dot.style.opacity=r>.85?1:0;p.b.style.opacity=clamp((r-.2)/.5,0,1);
+    p.b.style.visibility=vis?'visible':'hidden';p.h.style.visibility=r>=.9?'visible':'hidden';
+    p.n.style.opacity=clamp(r*1.6,0,1);p.n.style.visibility=vis?'visible':'hidden';
+    segs[i].classList.toggle('seen',r>=.9);});
+  const inLayers=u>LAY0-.25;
+  side.classList.toggle('off',!inLayers);
+  wash.style.setProperty('--wash', u<3.2?1:u<LAY0-.4?lerp(1,.55,clamp((u-3.2)/.6,0,1)):lerp(.55,1,clamp((u-(LAY0-.4))/.5,0,1)));
+  let sum=0;L.forEach((l,i)=>{if(revealAt(u,i)>=.9)sum+=l.c;});
+  $('sum').textContent='£'+sum+' /m²';
+  if(named<11){$('headT').textContent=named+' of 11 named';$('headH').textContent='Keep scrolling to name each layer, outside to inside.';}
+  else{$('headT').textContent='Outside to inside';$('headH').textContent='Select any layer for what it does and what it costs.';}
+  $('rail').style.width=(u/U*100)+'%';
+}
+function tick(){
+  const d=target-cur;cur=reduce?target:(Math.abs(d)<.0005?target:cur+d*.14);
+  draw(false);requestAnimationFrame(tick);
+}
+size();cur=target;requestAnimationFrame(tick);
+})();
+</script>
