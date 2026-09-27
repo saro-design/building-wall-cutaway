@@ -1,0 +1,53 @@
+<div id="cw-track">
+  <div id="cw-stage">
+    <canvas id="cw-cv" aria-label="Animated cutaway of a medium-rise apartment block, opening to show a through-wall steel framing system"></canvas>
+    <div class="cw-wash" id="cw-wash"></div>
+
+    <div id="cw-ov" aria-hidden="false"></div>
+
+    <section class="cw-chap" data-in="-1" data-out="0.6" id="cw-c0">
+      <p class="cw-eyebrow"><i></i>Building envelope &middot; Through-wall SFS</p>
+      <h1>Inside<br>the wall</h1>
+      <p>A five-storey apartment block, opened up to show the steel-framed wall system behind its façade.</p>
+      <div class="cw-cue"><b></b>Scroll to open the wall</div>
+    </section>
+    <section class="cw-chap" data-in="1.0" data-out="3.1">
+      <p class="cw-eyebrow"><i></i>The cutaway</p>
+      <h2>The façade steps away floor by floor</h2>
+      <p>Each storey peels back one layer further than the one below, so the whole build-up shows at once, from cladding outside to plasterboard inside.</p>
+    </section>
+    <section class="cw-chap" data-in="3.55" data-out="5.25">
+      <p class="cw-eyebrow"><i></i>The detail</p>
+      <h2>Eleven parts between street and room</h2>
+      <p>Rainscreen and fire protection outside, the weather line in the middle, then the steel frame and its lining.</p>
+    </section>
+
+    <div class="cw-side cw-off" id="cw-side">
+      <div class="cw-panel cw-head">
+        <p class="cw-eyebrow"><i></i>Wall build-up</p>
+        <h3 id="cw-headT">Outside to inside</h3>
+        <p class="cw-hint" id="cw-headH">Keep scrolling to name each layer.</p>
+      </div>
+      <div class="cw-panel cw-card" id="cw-card" hidden>
+        <div class="cw-top"><span class="cw-idx" id="cw-cIdx">01 / 11</span><button class="cw-x" id="cw-cClose" type="button">Close</button></div>
+        <h4><span class="cw-sw" id="cw-cSw"></span><span id="cw-cName">Fibre cement cladding</span></h4>
+        <p id="cw-cDesc"></p>
+        <dl id="cw-cSpec"></dl>
+        <div class="cw-cost"><div class="cw-v" id="cw-cCost">£95<small>/m²</small></div><div class="cw-share" id="cw-cShare">37% of wall cost</div></div>
+        <div class="cw-nav"><button type="button" id="cw-cPrev">&larr; Outer</button><button type="button" id="cw-cNext">Inner &rarr;</button></div>
+      </div>
+      <div class="cw-panel cw-build" id="cw-build">
+        <div class="cw-row"><span class="cw-t">Indicative cost</span><span class="cw-sum" id="cw-sum">£0 /m²</span></div>
+        <div class="cw-bar" id="cw-bar" role="group" aria-label="Cost share by layer"></div>
+        <p class="cw-note">Placeholder rates per m² of wall for the prototype. Replace with real figures before publishing.</p>
+      </div>
+    </div>
+
+    <div class="cw-chrome">
+      <a class="cw-brand" href="/">&larr; Sarvesh Chitnis</a>
+      <button class="cw-skip" id="cw-skip" type="button">Skip to layers</button>
+    </div>
+    <div class="cw-rail" id="cw-rail"></div>
+    <div class="cw-load" id="cw-load">Loading frames</div>
+  </div>
+</div>
