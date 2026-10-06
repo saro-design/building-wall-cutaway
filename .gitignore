@@ -2,11 +2,10 @@
 dist/
 releases/
 
-# Large media stays out of git (frames, film, AE project)
+# Source film and AE project stay out of git (frames/ is tracked: staging needs it)
 *.mp4
 *.mov
 *.aep
-frames/
 
 # OS / editor clutter
 .DS_Store

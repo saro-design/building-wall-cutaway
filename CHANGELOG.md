@@ -2,6 +2,11 @@
 
 Versions: `MAJOR.MINOR.PATCH`. MAJOR = engine or animation changes. MINOR = UI redesign or new feature. PATCH = fixes and copy.
 
+## Unreleased
+
+- Staging on GitHub Pages: every push to `main` is built and published by GitHub Actions (`.github/workflows/staging.yml`).
+- Frames are now tracked in git so staging can serve them.
+
 ## v1.1.0 — 6 Oct 2026
 
 Standalone build. The project no longer depends on any one website.

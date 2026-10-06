@@ -26,7 +26,7 @@ How this repo is run. Short version: **`main` is always the latest working versi
 2. **Make changes and commit as you go.** Keep each commit about one thing.
 3. **Push the branch to GitHub.**
 4. **Open a pull request** into `main`. Describe what changed and add before and after screenshots. This is the part worth showing on the portfolio.
-5. **Merge the PR** once it's checked in the browser.
+5. **Merge the PR** once it's checked in the browser. GitHub Actions then rebuilds staging automatically (Actions tab shows progress).
 6. **Release it.** Bump `VERSION`, update `CHANGELOG.md`, tag `v1.1.0`, and publish a GitHub Release with `dist/index.html` attached.
 
 ## Commit messages

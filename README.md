@@ -7,7 +7,8 @@ A full-screen, scroll-driven cutaway of a five-storey apartment block: a web des
 | Current version | see `VERSION` and `CHANGELOG.md` |
 | Source animation | After Effects comp, exported as `Comp 1_1.mp4` (1920×1080, 24 fps, 40 s) |
 | Frames used | 1.75 s to 10.0 s of the film, every frame: 198 WebP files, about 22 MB |
-| Frames on disk | `frames/frame-001.webp` to `frame-198.webp`, next to `src/` (not in git) |
+| Frames | `frames/frame-001.webp` to `frame-198.webp`, next to `src/` |
+| Staging | https://saro-design.github.io/building-wall-cutaway/ (rebuilt on every push to `main`) |
 
 ## How it is split
 
@@ -32,7 +33,9 @@ building-wall-cutaway/
 │   └── build.py             joins src/ into one standalone page
 ├── dist/                    OUTPUT. Rebuilt every time, never edit by hand (not in git)
 │   └── index.html              the whole experience in one file
-├── frames/                  the 198 animation frames (not in git)
+├── frames/                  the 198 animation frames
+├── .github/workflows/
+│   └── staging.yml          builds and publishes staging on every push to main
 ├── prototype/
 │   └── inside-the-wall-prototype.html   the original single-file prototype, kept for reference
 └── docs/
@@ -73,11 +76,18 @@ To load the frames from a server instead of the local folder: `python build/buil
 3. Run `python build/build.py` and check `dist/index.html`.
 4. Commit, then publish a GitHub Release tagged `v<version>` with `dist/index.html` attached.
 
+## Environments
+
+| | Where | Gets |
+|---|---|---|
+| Local | `dist/index.html` on your machine | whatever you build |
+| Staging | GitHub Pages | every merge to `main`, automatically |
+| Production | the live portfolio page | tagged releases only, deployed by hand |
+
 How branches, commits and tags are used here: see `docs/git-workflow.md`.
 
 ## Not in this repo
 
-- The 198 animation frames (`frames/`).
 - The After Effects project and source film.
 - Client correspondence.
 
