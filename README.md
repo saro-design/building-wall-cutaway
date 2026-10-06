@@ -4,12 +4,10 @@ A full-screen, scroll-driven cutaway of a five-storey apartment block: a web des
 
 | | |
 |---|---|
-| Live page (draft) | sarvesh.co.uk/building-wall-cutaway (Webflow page "Inside the Wall") |
 | Current version | see `VERSION` and `CHANGELOG.md` |
 | Source animation | After Effects comp, exported as `Comp 1_1.mp4` (1920×1080, 24 fps, 40 s) |
 | Frames used | 1.75 s to 10.0 s of the film, every frame: 198 WebP files, about 22 MB |
-| Frames on Webflow | Assets › **Building Cutaway** (198 files) |
-| Frames on disk | `frames/` next to `src/` (not in git) |
+| Frames on disk | `frames/frame-001.webp` to `frame-198.webp`, next to `src/` (not in git) |
 
 ## How it is split
 
@@ -29,17 +27,12 @@ building-wall-cutaway/
 │   │   └── ui.js               labels, leader lines, layer card, cost bar, loader
 │   └── data/
 │       ├── layers.js           CONTENT. Names, copy, specs, costs, dot positions
-│       └── frames.json         Webflow file names of the 198 frames
+│       └── frames.json         file names of the 198 frames
 ├── build/
-│   └── build.py             joins src/ into the Webflow code blocks and preview pages
+│   └── build.py             joins src/ into one standalone page
 ├── dist/                    OUTPUT. Rebuilt every time, never edit by hand (not in git)
-│   ├── webflow/head.html       paste into Page settings › Inside <head> tag
-│   ├── webflow/footer.html     paste into Page settings › Before </body> tag
-│   └── preview/
-│       ├── index.html          open in a browser, frames load from Webflow
-│       └── index-local.html    open in a browser, frames load from frames/
-├── marketing/
-│   └── card-thumbnail.jpg   portfolio card image
+│   └── index.html              the whole experience in one file
+├── frames/                  the 198 animation frames (not in git)
 ├── prototype/
 │   └── inside-the-wall-prototype.html   the original single-file prototype, kept for reference
 └── docs/
@@ -61,30 +54,30 @@ building-wall-cutaway/
 
 Timing lives in the engine config. Scroll length is 9 screens: the building holds until 0.7, the cutaway opens until 3.2, the camera pushes in until 5.4, and the rest is left for the UI (layer naming starts at 5.6). Override any value without editing the engine by adding `window.CUTAWAY_CONFIG = { ... }` before it loads.
 
-**UI** (`src/ui/`). Everything a visitor reads or clicks. It only reads `window.Cutaway` and `window.CUTAWAY_LAYERS`, so it can be replaced completely. Every class and id starts with `cw-` so Webflow's site styles don't clash with it.
+**UI** (`src/ui/`). Everything a visitor reads or clicks. It only reads `window.Cutaway` and `window.CUTAWAY_LAYERS`, so it can be replaced completely. Every class and id starts with `cw-`, so it can be dropped into any website without style clashes.
 
 **Data** (`src/data/layers.js`). One entry per layer, outside to inside. Change copy, costs, colours or dot positions here. Dot positions are pixels on the final 1920×1080 frame (the last frame in the sequence).
 
 ## Making a change
 
 1. Edit files in `src/` only.
-2. Run `python build/build.py`. It prints the size of each Webflow block; each must stay under 50,000 characters.
-3. Open `dist/preview/index-local.html` in a browser to check.
-4. Paste `dist/webflow/head.html` and `dist/webflow/footer.html` into the Webflow page's custom code, or ask Claude to push them.
+2. Run `python build/build.py`.
+3. Open `dist/index.html` in a browser to check.
+
+To load the frames from a server instead of the local folder: `python build/build.py --frames https://example.com/frames/`
 
 ## Releasing a version
 
 1. Bump `VERSION`. Use `1.x.0` for a UI redesign, `1.0.x` for a fix or copy change, and `2.0.0` if the engine or animation changes.
 2. Add an entry at the top of `CHANGELOG.md`.
-3. Run `python build/build.py` and push the two Webflow files to the page.
-4. Commit, then tag the commit `v<version>` and publish a GitHub Release with `dist/webflow/head.html` and `footer.html` attached.
-5. To roll back, take the two files from an older GitHub Release and paste them into Webflow.
+3. Run `python build/build.py` and check `dist/index.html`.
+4. Commit, then publish a GitHub Release tagged `v<version>` with `dist/index.html` attached.
 
 How branches, commits and tags are used here: see `docs/git-workflow.md`.
 
 ## Not in this repo
 
-- The 198 animation frames (in Webflow Assets › Building Cutaway, and a local `frames/` folder).
+- The 198 animation frames (`frames/`).
 - The After Effects project and source film.
 - Client correspondence.
 
@@ -94,4 +87,4 @@ How branches, commits and tags are used here: see `docs/git-workflow.md`.
 
 - Replace the placeholder costs in `layers.js` with real supplier figures, or remove the cost features.
 - Check the layer descriptions against the manufacturer's product literature.
-- A lighter frame set for phones. Webflow already stores 500 px versions of every frame (`-p-500.webp`), which could be used there.
+- A lighter frame set for phones (e.g. 960 px wide).

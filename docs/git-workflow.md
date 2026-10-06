@@ -1,6 +1,6 @@
 # Git workflow
 
-How this repo is run. Short version: **`main` is always what's live on Webflow.** New work happens on a branch, comes back through a pull request, and every release gets a tag.
+How this repo is run. Short version: **`main` is always the latest working version.** New work happens on a branch, comes back through a pull request, and every release gets a tag.
 
 ## The pieces
 
@@ -15,7 +15,7 @@ How this repo is run. Short version: **`main` is always what's live on Webflow.*
 
 ## Branches
 
-- `main`: matches the live Webflow page. Never edit it directly.
+- `main`: the latest working version. Never edit it directly.
 - `ui/round-2`, `ui/round-3` and so on: one branch per UI design round (your Figma iterations).
 - `content/…`: copy, costs or layer data, e.g. `content/real-costs`.
 - `fix/…`: small fixes, e.g. `fix/mobile-card-overflow`.
@@ -26,8 +26,8 @@ How this repo is run. Short version: **`main` is always what's live on Webflow.*
 2. **Make changes and commit as you go.** Keep each commit about one thing.
 3. **Push the branch to GitHub.**
 4. **Open a pull request** into `main`. Describe what changed and add before and after screenshots. This is the part worth showing on the portfolio.
-5. **Merge the PR** once it's checked and pushed to Webflow.
-6. **Release it.** Bump `VERSION`, update `CHANGELOG.md`, tag `v1.1.0`, and publish a GitHub Release with the two Webflow files attached.
+5. **Merge the PR** once it's checked in the browser.
+6. **Release it.** Bump `VERSION`, update `CHANGELOG.md`, tag `v1.1.0`, and publish a GitHub Release with `dist/index.html` attached.
 
 ## Commit messages
 
@@ -54,4 +54,5 @@ Types: `feat` (new behaviour), `fix`, `refactor` (same behaviour, cleaner code),
 |---|---|---|
 | prototype | 26 Sept 2026 | Single-file scroll prototype, 12 fps with frame blending |
 | prototype | 26 Sept 2026 | 24 fps, no blending, smoother scroll |
-| v1.0.0 | 27 Sept 2026 | Split into engine, UI and data. Build script. Live on Webflow (draft) |
+| v1.0.0 | 27 Sept 2026 | Split into engine, UI and data. Build script |
+| v1.1.0 | 6 Oct 2026 | Standalone build: one `dist/index.html`, frames from any folder or server |

@@ -128,7 +128,7 @@ canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
   .cw-cue b::after,#cw-ov .cw-ring.cw-on{animation:none}
 }
 
-/* Webflow guards: keep site-wide type styles from leaking in */
+/* Host-page guards: keep a surrounding site's type styles from leaking in */
 #cw-track h1,#cw-track h2,#cw-track h3,#cw-track h4{color:var(--cw-ink)}
 .cw-brand{pointer-events:auto;text-decoration:none}
 .cw-brand:hover{color:var(--cw-ink)}
