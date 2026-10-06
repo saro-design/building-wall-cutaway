@@ -1,0 +1,16 @@
+# Build output: rebuilt from src/ by build/build.py
+dist/
+releases/
+
+# Large media lives in Webflow Assets, not in git
+*.mp4
+*.mov
+*.aep
+frames/
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+__pycache__/

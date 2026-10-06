@@ -32,14 +32,14 @@ building-wall-cutaway/
 │       └── frames.json         Webflow file names of the 198 frames
 ├── build/
 │   └── build.py             joins src/ into the Webflow code blocks and preview pages
-├── dist/                    OUTPUT. Rebuilt every time, never edit by hand
+├── dist/                    OUTPUT. Rebuilt every time, never edit by hand (not in git)
 │   ├── webflow/head.html       paste into Page settings › Inside <head> tag
 │   ├── webflow/footer.html     paste into Page settings › Before </body> tag
 │   └── preview/
 │       ├── index.html          open in a browser, frames load from Webflow
 │       └── index-local.html    open in a browser, frames load from frames/
-├── releases/
-│   └── v1.0.0/              frozen copy of dist/ and src/ for every released version
+├── marketing/
+│   └── card-thumbnail.jpg   portfolio card image
 ├── prototype/
 │   └── inside-the-wall-prototype.html   the original single-file prototype, kept for reference
 └── docs/
@@ -76,8 +76,19 @@ Timing lives in the engine config. Scroll length is 9 screens: the building hold
 
 1. Bump `VERSION`. Use `1.x.0` for a UI redesign, `1.0.x` for a fix or copy change, and `2.0.0` if the engine or animation changes.
 2. Add an entry at the top of `CHANGELOG.md`.
-3. Run `python build/build.py --release`. This freezes `dist/` and `src/` into `releases/v<version>/`.
-4. Push to Webflow. To roll back, paste the two files from an older `releases/` folder.
+3. Run `python build/build.py` and push the two Webflow files to the page.
+4. Commit, then tag the commit `v<version>` and publish a GitHub Release with `dist/webflow/head.html` and `footer.html` attached.
+5. To roll back, take the two files from an older GitHub Release and paste them into Webflow.
+
+How branches, commits and tags are used here: see `docs/git-workflow.md`.
+
+## Not in this repo
+
+- The 198 animation frames (in Webflow Assets › Building Cutaway, and a local `frames/` folder).
+- The After Effects project and source film.
+- Client correspondence.
+
+© Sarvesh Chitnis. All rights reserved. The code is shared to show the work, not licensed for reuse. Renders and product information belong to their owners.
 
 ## Still to do before this is public
 
