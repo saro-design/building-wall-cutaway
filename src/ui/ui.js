@@ -18,7 +18,7 @@
   var SVGNS = 'http://www.w3.org/2000/svg';
 
   /* story timing, in screens */
-  var FROST_END = 0.9, HERO_END = 0.7, WASH = [0.3, 0.9];
+  var FROST_END = 0.9, HERO_END = 0.7, WASH = [0.3, 0.9], FRAME = [4.4, 5.6];
   var FADE = 0.3, RISE_IN = 24, RISE_OUT = 40, DRIFT = 17;   // drift ≈ 3px per prototype step
 
   function $(id) { return document.getElementById('cw-' + id); }
@@ -27,7 +27,7 @@
   function revealAt(u, i) { return clamp((u - LAY0 - i * STEP) / (STEP * 1.1), 0, 1); }
 
   var track = $('track'), stage = $('stage'), ui = $('ui'), frost = $('frost'), wash = $('wash'), hero = $('hero');
-  var card = $('card'), svg = $('leaders');
+  var card = $('card'), svg = $('leaders'), sideL = $('sideL'), sideR = $('sideR');
 
   /* ---------- chapter captions ---------- */
   var chaps = D.chapters.map(function (c) {
@@ -37,10 +37,9 @@
     $('chaps').appendChild(s);
     return { el: s, a: c['in'], b: c.out == null ? Infinity : c.out, drift: !c.top };
   });
-  var topChap = chaps.filter(function (c) { return !c.drift; })[0];
 
   /* ---------- chips, markers, leaders ---------- */
-  var order = L.map(function (l, i) { return i; }).sort(function (a, b) { return L[a].anchor[1] - L[b].anchor[1]; });
+  var order = L.map(function (l, i) { return i; }).sort(function (a, b) { return L[a].labelY - L[b].labelY; });
   var rank = []; order.forEach(function (i, r) { rank[i] = r; });
 
   var parts = L.map(function (l, i) {
@@ -63,23 +62,18 @@
 
     [chip, mk].forEach(function (b) { b.addEventListener('click', function () { select(sel === i ? -1 : i); }); });
     $('markers').appendChild(mk);
-    return { chip: chip, mk: mk, g: g, halo: halo, line: line, w: 0, y: 0 };
+    return { chip: chip, mk: mk, g: g, halo: halo, line: line, w: 0, h: 0 };
   });
   order.forEach(function (i) { $('chips').appendChild(parts[i].chip); });   // DOM = visual order, top to bottom
 
-  /* chip column: x = gutter, rows 46px apart, bottom row near the foot of the screen */
-  var chipX = 72, narrow = false;
+  /* chips sit on the image: right-aligned at labelX, each on its own labelY row,
+     so every leader runs straight across and then up or down to its anchor without crossing */
+  var narrow = false, maxW = 0;
   function layout() {
-    narrow = E.state.narrow;
-    var H = stage.clientHeight;
-    chipX = topChap.el.offsetLeft;
-    var bottom = H - clamp(H * 0.069, 40, 62);
-    var capBottom = topChap.el.offsetTop + topChap.el.offsetHeight;
-    var gap = clamp((bottom - capBottom - 44) / (NL - 1), 40, 46);
-    parts.forEach(function (p, i) {
-      p.w = p.chip.offsetWidth;
-      p.y = bottom - (NL - 1 - rank[i]) * gap;
-      p.chip.style.transform = narrow ? '' : 'translate(' + chipX + 'px,' + Math.round(p.y - p.chip.offsetHeight / 2) + 'px)';
+    narrow = E.state.narrow; maxW = 0;
+    parts.forEach(function (p) {
+      p.w = p.chip.offsetWidth; p.h = p.chip.offsetHeight; maxW = Math.max(maxW, p.w);
+      if (narrow) p.chip.style.transform = '';
     });
     E.refresh();
   }
@@ -153,6 +147,11 @@
     /* left wash for text legibility */
     wash.style.opacity = reduce ? (u > WASH[0] ? 1 : 0) : clamp((u - WASH[0]) / (WASH[1] - WASH[0]), 0, 1);
 
+    /* side frost frames the cutaway from left and right as the camera pushes in */
+    var fr = reduce ? (u > FRAME[0] ? 1 : 0) : ease(clamp((u - FRAME[0]) / (FRAME[1] - FRAME[0]), 0, 1));
+    sideL.style.opacity = sideR.style.opacity = fr;
+    show(sideL, fr > 0.004); show(sideR, fr > 0.004);
+
     /* whole overlay steps back as the contact section arrives */
     ui.style.opacity = c > 0 ? 1 - fc : '';
     show(ui, fc < 0.99);
@@ -190,9 +189,12 @@
       show(p.mk, mo > 0);
 
       if (narrow) return;
-      var x0 = chipX + p.w + 12;
-      var pts = x0 + ',' + p.y + ' ' + a.x.toFixed(1) + ',' + p.y + ' ' + a.x.toFixed(1) + ',' + a.y.toFixed(1);
-      var len = Math.abs(a.x - x0) + Math.abs(a.y - p.y);
+      var lb = E.project(D.labelX, L[i].labelY);
+      var right = Math.max(lb.x, maxW + 16);                 // never push a chip off the left edge
+      p.chip.style.transform = 'translate(' + Math.round(right - p.w) + 'px,' + Math.round(lb.y - p.h / 2) + 'px)';
+      var x0 = right + 12, y0 = lb.y.toFixed(1);
+      var pts = x0.toFixed(1) + ',' + y0 + ' ' + a.x.toFixed(1) + ',' + y0 + ' ' + a.x.toFixed(1) + ',' + a.y.toFixed(1);
+      var len = Math.abs(a.x - x0) + Math.abs(a.y - lb.y);
       var off = (len * (1 - ease(r))).toFixed(1);
       [p.halo, p.line].forEach(function (pl) {
         pl.setAttribute('points', pts);

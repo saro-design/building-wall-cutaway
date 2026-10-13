@@ -64,6 +64,10 @@ p,h1,h2,h3,dl,dd{margin:0}
 #cw-stage{position:fixed;inset:0;height:100vh;height:100svh;overflow:hidden;background:var(--paper)}
 canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 .cw-wash{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgb(244 245 244/.92) 0%,rgb(244 245 244/.72) 30%,transparent 55%)}
+/* side frost: blurred, paper-tinted edges that frame the cutaway (fades in with the push) */
+.cw-side{position:absolute;top:0;bottom:0;pointer-events:none;opacity:0;-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
+.cw-side-l{left:0;width:40%;background:linear-gradient(90deg,rgb(244 245 244/.88) 0%,rgb(244 245 244/.6) 55%,rgb(244 245 244/.15) 100%);-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent 100%);mask-image:linear-gradient(90deg,#000 55%,transparent 100%)}
+.cw-side-r{right:0;width:24%;background:rgb(244 245 244/.35);-webkit-mask-image:linear-gradient(270deg,#000 35%,transparent 100%);mask-image:linear-gradient(270deg,#000 35%,transparent 100%)}
 .cw-frost{position:absolute;inset:0;pointer-events:none;background:var(--frost);-webkit-backdrop-filter:blur(64px);backdrop-filter:blur(64px)}
 .cw-ui{position:absolute;inset:0;pointer-events:none}
 
@@ -116,10 +120,6 @@ canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 .cw-legal{display:flex;align-items:center;gap:20px;font-size:14px;line-height:1.55;letter-spacing:-.005em;color:var(--text-2)}
 .cw-legal img{width:96px;height:40px;object-fit:contain}
 
-/* short desktop screens: chapter 04 title on one line so the chip column fits */
-@media (max-height:820px){
-  .cw-chap.cw-top{width:calc(var(--fs-l) * 12)}
-}
 
 /* ---------- phones (matches the engine's narrow layout) ---------- */
 @media (max-width:760px), (max-aspect-ratio:11/10){
@@ -129,7 +129,7 @@ canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
   .cw-logo img{width:86px;height:36px}
   .cw-links{padding:6px}
   .cw-link{display:none}
-  .cw-wash,.cw-leaders{display:none}
+  .cw-wash,.cw-leaders,.cw-side{display:none}
   .cw-hero{width:auto;right:var(--gutter)}
   .cw-chap{top:calc(var(--cw-img-bottom,60vh) + 20px);width:auto;right:var(--gutter)}
   .cw-chap.cw-top{display:none}
