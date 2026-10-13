@@ -2,6 +2,33 @@
 
 Versions: `MAJOR.MINOR.PATCH`. MAJOR = engine or animation changes. MINOR = UI redesign or new feature. PATCH = fixes and copy.
 
+## v1.2.0 — 12 Oct 2026
+
+UI redesign to Figma V1 design system. PTG-branded; hosted on Cloudflare Pages.
+
+**UI 1.2.0**
+- New design system: Inter only, five colours as tokens (navy, blue, lime, charcoal, paper), display type that scales from 1280 to 2560 wide.
+- Nav: two glass pills, PTG logo left; Home, Products, About us and a Contact button right.
+- Hero: full-screen frost with the tagline. Opacity and blur fade together over the first screen, with no hard edge.
+- Four chapter captions (01–04 / 04) that fade and rise in, drift slowly, and rise out.
+- Soft left wash for legibility once the frost has gone.
+- 11 layer chips in a left column, sorted so the orthogonal leader lines never cross. Figma layer markers on the render.
+- Glass layer card: description, specs, placeholder cost and share of build-up, Outer / Inner. Arrow keys and Esc.
+- Contact section with the frost returning over the final frame.
+- Removed: "Inside the wall" title, scroll cue, progress rail, cost bar, "Skip to layers", loader.
+- Accessibility: semantic landmarks, chips are `aria-pressed` buttons, live card region, blue focus ring on every control, skip link, reduced motion support.
+
+**Content**
+- Chapter copy moved into `src/data/layers.js` with the layer data. Chip labels follow Figma.
+
+**Build and hosting**
+- `build/build.py` now outputs a deployable `dist/` (page, frames, assets, `_headers` with long caching) for Cloudflare Pages.
+- Frames are tracked in git so Cloudflare can build from the repo.
+- GitHub Pages staging retired.
+
+**Engine**
+- Unchanged (1.0.0). Same 198 frames and timing.
+
 ## v1.1.0 — 6 Oct 2026
 
 Standalone build. The project no longer depends on any one website.

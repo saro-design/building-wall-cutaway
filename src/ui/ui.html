@@ -1,53 +1,65 @@
-<div id="cw-track">
-  <div id="cw-stage">
-    <canvas id="cw-cv" aria-label="Animated cutaway of a medium-rise apartment block, opening to show a through-wall steel framing system"></canvas>
-    <div class="cw-wash" id="cw-wash"></div>
+<a class="cw-skiplink" href="#contact">Skip to contact</a>
+<header class="cw-nav">
+  <a class="cw-pill cw-logo" href="#top"><img src="assets/ptg-logo.png" width="115" height="48" alt="Performance Technology Group, back to top"></a>
+  <nav class="cw-pill cw-links" aria-label="Main">
+    <a class="cw-link" href="#top">Home</a>
+    <a class="cw-link" href="#">Products</a>
+    <a class="cw-link" href="#">About us</a>
+    <a class="cw-btn cw-primary" href="#contact">Contact</a>
+  </nav>
+</header>
 
-    <div id="cw-ov" aria-hidden="false"></div>
+<main>
+  <div id="cw-track">
+    <div id="cw-stage">
+      <canvas id="cw-cv" role="img" aria-label="Cutaway of a five-storey apartment block. As you scroll, the facade is cut open floor by floor and the camera pushes into the through-wall steel framing system, showing its 11 layers from cladding outside to plasterboard inside."></canvas>
+      <div class="cw-wash" id="cw-wash" aria-hidden="true"></div>
+      <div class="cw-side cw-side-l" id="cw-sideL" aria-hidden="true"></div>
+      <div class="cw-side cw-side-r" id="cw-sideR" aria-hidden="true"></div>
 
-    <section class="cw-chap" data-in="-1" data-out="0.6" id="cw-c0">
-      <p class="cw-eyebrow"><i></i>Building envelope &middot; Through-wall SFS</p>
-      <h1>Inside<br>the wall</h1>
-      <p>A five-storey apartment block, opened up to show the steel-framed wall system behind its façade.</p>
-      <div class="cw-cue"><b></b>Scroll to open the wall</div>
-    </section>
-    <section class="cw-chap" data-in="1.0" data-out="3.1">
-      <p class="cw-eyebrow"><i></i>The cutaway</p>
-      <h2>The façade steps away floor by floor</h2>
-      <p>Each storey peels back one layer further than the one below, so the whole build-up shows at once, from cladding outside to plasterboard inside.</p>
-    </section>
-    <section class="cw-chap" data-in="3.55" data-out="5.25">
-      <p class="cw-eyebrow"><i></i>The detail</p>
-      <h2>Eleven parts between street and room</h2>
-      <p>Rainscreen and fire protection outside, the weather line in the middle, then the steel frame and its lining.</p>
-    </section>
+      <div class="cw-ui" id="cw-ui">
+        <svg class="cw-leaders" id="cw-leaders" aria-hidden="true"></svg>
+        <div class="cw-markers" id="cw-markers"></div>
+        <div id="cw-chaps"></div>
+        <div class="cw-chips" id="cw-chips" role="group" aria-label="Wall layers"></div>
 
-    <div class="cw-side cw-off" id="cw-side">
-      <div class="cw-panel cw-head">
-        <p class="cw-eyebrow"><i></i>Wall build-up</p>
-        <h3 id="cw-headT">Outside to inside</h3>
-        <p class="cw-hint" id="cw-headH">Keep scrolling to name each layer.</p>
+        <div class="cw-card" id="cw-card" role="region" aria-live="polite" aria-label="Selected layer" hidden>
+          <p class="cw-eyebrow cw-plain" id="cw-cEye">Layer 01 of 11</p>
+          <h3 class="cw-hm" id="cw-cName">Layer</h3>
+          <p class="cw-bm" id="cw-cDesc"></p>
+          <dl class="cw-spec" id="cw-cSpec"></dl>
+          <hr class="cw-rule">
+          <p class="cw-price"><span class="cw-dl" id="cw-cCost">£0</span><span class="cw-ls" id="cw-cUnit">per m²</span></p>
+          <div class="cw-step">
+            <button class="cw-btn cw-ghost" type="button" id="cw-cPrev">&larr; Outer</button>
+            <button class="cw-btn cw-ghost" type="button" id="cw-cNext">Inner &rarr;</button>
+          </div>
+        </div>
       </div>
-      <div class="cw-panel cw-card" id="cw-card" hidden>
-        <div class="cw-top"><span class="cw-idx" id="cw-cIdx">01 / 11</span><button class="cw-x" id="cw-cClose" type="button">Close</button></div>
-        <h4><span class="cw-sw" id="cw-cSw"></span><span id="cw-cName">Fibre cement cladding</span></h4>
-        <p id="cw-cDesc"></p>
-        <dl id="cw-cSpec"></dl>
-        <div class="cw-cost"><div class="cw-v" id="cw-cCost">£95<small>/m²</small></div><div class="cw-share" id="cw-cShare">37% of wall cost</div></div>
-        <div class="cw-nav"><button type="button" id="cw-cPrev">&larr; Outer</button><button type="button" id="cw-cNext">Inner &rarr;</button></div>
-      </div>
-      <div class="cw-panel cw-build" id="cw-build">
-        <div class="cw-row"><span class="cw-t">Indicative cost</span><span class="cw-sum" id="cw-sum">£0 /m²</span></div>
-        <div class="cw-bar" id="cw-bar" role="group" aria-label="Cost share by layer"></div>
-        <p class="cw-note">Placeholder rates per m² of wall for the prototype. Replace with real figures before publishing.</p>
-      </div>
+
+      <div class="cw-frost" id="cw-frost" aria-hidden="true"></div>
+
+      <section class="cw-hero" id="cw-hero">
+        <p class="cw-eyebrow"><i aria-hidden="true"></i>Building envelope systems</p>
+        <h1 class="cw-dxl">Manufacturing innovation.<br>Constructing excellence.</h1>
+        <p class="cw-bl">Fire, thermal and acoustic insulation for the building envelope. Scroll to see how the through-wall system comes together.</p>
+      </section>
     </div>
-
-    <div class="cw-chrome">
-      <a class="cw-brand" href="/">&larr; Sarvesh Chitnis</a>
-      <button class="cw-skip" id="cw-skip" type="button">Skip to layers</button>
-    </div>
-    <div class="cw-rail" id="cw-rail"></div>
-    <div class="cw-load" id="cw-load">Loading frames</div>
   </div>
-</div>
+
+  <section class="cw-contact" id="contact" aria-labelledby="cw-contactT">
+    <div class="cw-contact-body">
+      <h2 class="cw-dxl" id="cw-contactT">Talk to our technical team</h2>
+      <p class="cw-bl">Specify the complete through-wall system, from frame and insulation to boards, membranes and cladding, with a single team.</p>
+      <div class="cw-actions">
+        <!-- PLACEHOLDER: replace with PTG's technical team address -->
+        <a class="cw-btn cw-primary" href="mailto:technical@example.com?subject=Through-wall%20system%20enquiry">Email the team</a>
+        <a class="cw-btn cw-ghost" href="#">Download the spec sheet</a>
+      </div>
+    </div>
+    <footer class="cw-legal">
+      <img src="assets/ptg-logo.png" width="96" height="40" alt="">
+      <p>&copy; 2026 Performance Technology Group</p>
+    </footer>
+  </section>
+</main>

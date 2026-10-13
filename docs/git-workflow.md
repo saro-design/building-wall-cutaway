@@ -15,8 +15,8 @@ How this repo is run. Short version: **`main` is always the latest working versi
 
 ## Branches
 
-- `main`: the latest working version. Never edit it directly.
-- `ui/round-2`, `ui/round-3` and so on: one branch per UI design round (your Figma iterations).
+- `main`: the latest working version, and what `cutaway.sarvesh.co.uk` serves. Never edit it directly.
+- `redesign/v1.2.0`, `ui/round-3` and so on: one branch per UI design round (your Figma iterations).
 - `content/…`: copy, costs or layer data, e.g. `content/real-costs`.
 - `fix/…`: small fixes, e.g. `fix/mobile-card-overflow`.
 
@@ -24,10 +24,10 @@ How this repo is run. Short version: **`main` is always the latest working versi
 
 1. **Start a branch from `main`.** In GitHub Desktop: *Current branch › New branch*, e.g. `ui/round-2`.
 2. **Make changes and commit as you go.** Keep each commit about one thing.
-3. **Push the branch to GitHub.**
+3. **Push the branch to GitHub.** Cloudflare Pages builds it and posts a preview link, e.g. `redesign-v1-2-0.building-cutaway.pages.dev`. Send that to PTG for feedback.
 4. **Open a pull request** into `main`. Describe what changed and add before and after screenshots. This is the part worth showing on the portfolio.
-5. **Merge the PR** once it's checked in the browser.
-6. **Release it.** Bump `VERSION`, update `CHANGELOG.md`, tag `v1.1.0`, and publish a GitHub Release with `dist/index.html` attached.
+5. **Merge the PR** once the preview is checked. Cloudflare deploys `main` to `cutaway.sarvesh.co.uk` by itself.
+6. **Release it.** `VERSION` and `CHANGELOG.md` are bumped on the branch. After the merge, tag the merge commit (e.g. `v1.2.0`) and publish a GitHub Release with the changelog notes.
 
 ## Commit messages
 
@@ -56,3 +56,18 @@ Types: `feat` (new behaviour), `fix`, `refactor` (same behaviour, cleaner code),
 | prototype | 26 Sept 2026 | 24 fps, no blending, smoother scroll |
 | v1.0.0 | 27 Sept 2026 | Split into engine, UI and data. Build script |
 | v1.1.0 | 6 Oct 2026 | Standalone build: one `dist/index.html`, frames from any folder or server |
+| v1.2.0 | 12 Oct 2026 | UI redesign to the Figma V1 design system, PTG-branded, Cloudflare Pages hosting |
+
+## Hosting
+
+Cloudflare Pages builds every push with `python3 build/build.py` and serves `dist/`. `main` is production; every other branch gets its own preview URL. The old GitHub Pages staging (`ci/staging`) is retired. Setup steps are in `docs/hosting-cloudflare.md`.
+
+## Useful commands
+
+| Command | What it does |
+|---|---|
+| `git switch -c ui/round-3` | Make a new branch from where you are and move onto it |
+| `git status` | What's changed and not yet committed |
+| `git add <file>` then `git commit -m "..."` | Pick the files, then save the snapshot |
+| `git push -u origin ui/round-3` | Send the branch to GitHub (first push; afterwards just `git push`) |
+| `git tag v1.2.0` then `git push origin v1.2.0` | Name a release commit and send the tag to GitHub |
