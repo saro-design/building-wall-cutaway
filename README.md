@@ -8,7 +8,7 @@ A full-screen, scroll-driven cutaway of a five-storey apartment block for **Perf
 |---|---|
 | Current version | see `VERSION` and `CHANGELOG.md` |
 | Design | Figma, V1 design system (Oct 2026): https://www.figma.com/design/JRckNrWn8mJHfyI6Ywihqz |
-| Hosting | Cloudflare Pages, deployed automatically from GitHub (see `docs/hosting-cloudflare.md`) |
+| Hosting | Cloudflare Worker (static assets), deployed automatically from GitHub on every push to `main` (see `docs/hosting-cloudflare.md`) |
 | Source animation | After Effects comp, 1920×1080, 24 fps |
 | Frames used | 198 WebP files, about 22 MB, in `frames/` |
 
@@ -19,8 +19,9 @@ The page is PTG-branded with the client's agreement. Sarvesh's Webflow portfolio
 | URL | What |
 |---|---|
 | `https://cutaway.sarvesh.co.uk` | Production. Always the latest `main`. |
-| `https://building-cutaway.pages.dev` | The same site on Cloudflare's own address. |
-| `https://<branch>.building-cutaway.pages.dev` | A preview for every other branch, e.g. `redesign-v1-2-0.building-cutaway.pages.dev`. Cloudflare also posts the link on the pull request. |
+| `http://localhost:8765` | Your local check before merging (see Making a change). |
+
+Only `main` is built. Cloudflare's own `*.workers.dev` address is switched off, so the custom domain is the only public URL.
 
 ## How it is split
 
@@ -83,7 +84,7 @@ Click a chip or a marker to open the layer card. ← / → step through layers, 
 2. Edit files in `src/` only.
 3. Run `python3 build/build.py` (on Windows: `python build/build.py`).
 4. Check it locally: `python -m http.server 8765 -d dist`, then open http://localhost:8765. (Opening `dist/index.html` straight from the folder also works.)
-5. Push the branch. Cloudflare builds a preview link.
+5. Push the branch and open a pull request. Merging it into `main` publishes the change.
 
 ## Build
 
@@ -95,7 +96,7 @@ Click a chip or a marker to open the layer card. ← / → step through layers, 
 
 JS is minified with `terser` if it's installed, and shipped as is if not (Cloudflare's build image doesn't need it).
 
-Cloudflare Pages settings: framework preset **None**, build command `python3 build/build.py`, output directory `dist`, production branch `main`.
+Cloudflare Workers Builds settings: build command `python3 build/build.py`, deploy command `npx wrangler deploy`, branch `main`. `wrangler.jsonc` says what to deploy: `dist/` as static assets on `cutaway.sarvesh.co.uk`.
 
 ## Releasing a version
 
