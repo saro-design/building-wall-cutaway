@@ -1,82 +1,46 @@
-# Hosting Building Cutaway on Cloudflare Pages
+# Hosting on Cloudflare
 
-Goal: `https://cutaway.sarvesh.co.uk` serves the live experience. It deploys automatically from GitHub, and your Webflow case study links to it.
+`https://cutaway.sarvesh.co.uk` serves the experience. It is a Cloudflare **Worker** (static assets only, no server code) that rebuilds itself from GitHub on every push to `main`. Sarvesh's Webflow portfolio links to it.
 
-Do Part A after Claude Code has pushed the redesign branch and you've merged it into `main`. You can set up hosting earlier; the first deploy will just show the current `main`.
+## How it is set up
 
----
+| Piece | Where | What |
+|---|---|---|
+| Worker | Cloudflare → Workers & Pages → `building-cutaway` | Serves `dist/` as static files |
+| Build | Same Worker → Settings → Build | Repo `saro-design/building-wall-cutaway`, branch `main`, build `python3 build/build.py`, deploy `npx wrangler deploy` |
+| Config | `wrangler.jsonc` in the repo | Name, `dist/` as the assets folder, the custom domain, `workers.dev` and preview URLs off |
+| Cache | `dist/_headers` (made by the build) | Frames and assets cached for a year |
+| DNS | Cloudflare → `sarvesh.co.uk` → DNS | Moved from Wix on 13 Oct 2026 (nameservers `lucy` / `skip.ns.cloudflare.com`) |
+| Domain registration | Wix | Wix still holds and renews `sarvesh.co.uk`; only the DNS moved |
 
-## Part A. Create the Pages project (about 10 min)
+### DNS records for sarvesh.co.uk
 
-1. Go to **dash.cloudflare.com** and sign up (free plan). Verify your email.
-2. In the left menu, open **Workers & Pages**.
-3. Click **Create application** → **Pages** tab → **Connect to Git**.
-4. Choose **GitHub** and sign in.
-   - When GitHub asks which repos to allow, pick **Only select repositories** → `building-wall-cutaway`. Click **Install & Authorize**.
-5. Select `building-wall-cutaway`, then click **Begin setup**.
-6. Fill in:
-   - **Project name:** `building-cutaway`. This gives you `building-cutaway.pages.dev`.
-   - **Production branch:** `main`
-   - **Framework preset:** `None`
-   - **Build command:** `python3 build/build.py`
-   - **Build output directory:** `dist`
-7. Click **Save and Deploy**. Wait for the green "Success" (1–2 min).
-8. Open `https://building-cutaway.pages.dev` and scroll through to check it.
+| Type | Name | Points to | Proxy | For |
+|---|---|---|---|---|
+| A | `sarvesh.co.uk` | `198.202.211.1` | Off (grey) | Webflow portfolio |
+| CNAME | `www` | `cdn.webflow.com` | Off (grey) | Webflow portfolio |
+| TXT | `_webflow` | `one-time-verification=…` | — | Webflow domain verification |
+| Worker | `cutaway` | `building-cutaway` Worker | On | Added by Cloudflare from `wrangler.jsonc` |
 
-> **If the build fails:** open the deployment, then **View build log**. Copy the last 20 lines into Claude Code and ask it to fix the build.
+Keep the Webflow records grey (DNS only). Webflow issues its own HTTPS certificate and expects traffic to reach it directly.
 
-**What you get from now on:**
-- Every push to `main` updates the live site automatically.
-- Every other branch (e.g. `ui/round-2`) gets its own preview link, like `ui-round-2.building-cutaway.pages.dev`. Send that link to PTG for feedback before you merge.
-
----
-
-## Part B. Add the subdomain cutaway.sarvesh.co.uk (about 10 min + waiting)
-
-Order matters. Add the domain in Cloudflare **first**, then the DNS record. Doing it the other way round can cause a "522" error.
-
-1. In Cloudflare: **Workers & Pages** → `building-cutaway` → **Custom domains** tab → **Set up a domain**.
-2. Type `cutaway.sarvesh.co.uk` and click **Continue**. Cloudflare shows the record you need to add; leave this tab open.
-3. Find where sarvesh.co.uk's **DNS** is managed. This is your domain registrar (e.g. GoDaddy, 123-reg, Namecheap, Google/Squarespace Domains), not Webflow.
-   - If you're not sure: in Webflow, go to **Site settings → Publishing → Production → Custom domains**. The DNS records listed there are the ones you added at your registrar, so that's where to go.
-4. At the registrar, open the DNS settings for `sarvesh.co.uk` and **add a record**:
-   - **Type:** `CNAME`
-   - **Name / Host:** `cutaway`
-   - **Value / Target / Points to:** `building-cutaway.pages.dev`
-   - **TTL:** Auto (or 1 hour)
-   - Save.
-   - Don't touch the existing Webflow records (`@`, `www`). Your portfolio keeps working as before.
-5. Back in Cloudflare, wait until the domain shows **Active**. Usually 5–30 min; can be up to 24 h. Cloudflare issues the HTTPS certificate automatically.
-6. Visit `https://cutaway.sarvesh.co.uk`.
-
-> **Stuck on "Pending" for over a day?** Check the registrar for a **CAA** record. If one exists, it must allow `letsencrypt.org` and `pki.goog`, or delete it. Then click **Retry** in Cloudflare.
-
----
-
-## Part C. Link it from Webflow (5 min)
-
-1. Open the case study page (`/ptg-building-cutaway`) in the Webflow Designer.
-2. Select the **Launch the experience** button (there's one in Overview and one in Final Design).
-3. In **Link settings**, change it from the page link to **URL**: `https://cutaway.sarvesh.co.uk`, and tick **Open in new tab**.
-4. Do the same for the project card on the Projects page, if it links to the experience.
-5. Publish the Webflow site.
-6. Later, delete the old draft Webflow page **Building Wall Cutaway** (`/building-wall-cutaway`). It's no longer needed.
-
----
-
-## Part D. Tidy GitHub (2 min)
-
-1. On github.com, open the pull request for `ci/staging` and click **Close pull request** (don't merge). Then **Delete branch**.
-2. Repo **Settings → Pages**: if GitHub Pages is on, set **Source** to **None**.
-
----
-
-## Your routine from now on
+## Your routine
 
 1. Design the change in Figma.
-2. Ask Claude Code to build it on a new branch (e.g. `ui/round-2`) and push.
-3. Cloudflare posts a preview link. Check it and send it to PTG.
-4. Merge the pull request on GitHub. `cutaway.sarvesh.co.uk` updates by itself.
-5. Tag the release (e.g. `v1.3.0`).
+2. Ask Claude Code to build it on a new branch (e.g. `ui/round-3`) and push.
+3. Check it locally (`python -m http.server 8765 -d dist`) and review the pull request.
+4. Merge the pull request. Cloudflare builds `main` and `cutaway.sarvesh.co.uk` updates by itself in 1–2 minutes.
+5. Tag the release (e.g. `v1.3.0`) and publish a GitHub Release.
 
-Sources: Cloudflare docs, [Git integration](https://developers.cloudflare.com/pages/get-started/git-integration/) and [Custom domains](https://developers.cloudflare.com/pages/configuration/custom-domains/).
+Only `main` is built. Branches don't get their own Cloudflare preview link; review them locally or in the pull request.
+
+## If something goes wrong
+
+- **Build failed:** Workers & Pages → `building-cutaway` → Deployments → the failed build → View logs. Copy the last 20 lines into Claude Code.
+- **Frames don't load:** check the build log says it uploaded about 200 files, not 1. If only `index.html` went up, `frames/` is missing from the commit.
+- **Portfolio down:** check the three Webflow records above are still there and grey.
+- **Roll back:** Workers & Pages → `building-cutaway` → Deployments → pick an earlier version → Deploy.
+
+## The free plan
+
+Free covers this project comfortably: unlimited bandwidth, static asset requests aren't metered, 25 MiB per file and 20,000 files per deploy (we use about 205 files, the largest under 0.5 MB), free HTTPS and DDoS protection. A paid plan only matters for heavy server-side code, which this site doesn't have.

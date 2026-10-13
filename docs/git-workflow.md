@@ -24,9 +24,9 @@ How this repo is run. Short version: **`main` is always the latest working versi
 
 1. **Start a branch from `main`.** In GitHub Desktop: *Current branch › New branch*, e.g. `ui/round-2`.
 2. **Make changes and commit as you go.** Keep each commit about one thing.
-3. **Push the branch to GitHub.** Cloudflare Pages builds it and posts a preview link, e.g. `redesign-v1-2-0.building-cutaway.pages.dev`. Send that to PTG for feedback.
+3. **Push the branch to GitHub.** Check it locally first (`python -m http.server 8765 -d dist`). Branches aren't published, so share screenshots with PTG, or merge to put it live.
 4. **Open a pull request** into `main`. Describe what changed and add before and after screenshots. This is the part worth showing on the portfolio.
-5. **Merge the PR** once the preview is checked. Cloudflare deploys `main` to `cutaway.sarvesh.co.uk` by itself.
+5. **Merge the PR** once it's checked. Cloudflare deploys `main` to `cutaway.sarvesh.co.uk` by itself.
 6. **Release it.** `VERSION` and `CHANGELOG.md` are bumped on the branch. After the merge, tag the merge commit (e.g. `v1.2.0`) and publish a GitHub Release with the changelog notes.
 
 ## Commit messages
@@ -56,11 +56,11 @@ Types: `feat` (new behaviour), `fix`, `refactor` (same behaviour, cleaner code),
 | prototype | 26 Sept 2026 | 24 fps, no blending, smoother scroll |
 | v1.0.0 | 27 Sept 2026 | Split into engine, UI and data. Build script |
 | v1.1.0 | 6 Oct 2026 | Standalone build: one `dist/index.html`, frames from any folder or server |
-| v1.2.0 | 12 Oct 2026 | UI redesign to the Figma V1 design system, PTG-branded, Cloudflare Pages hosting |
+| v1.2.0 | 12 Oct 2026 | UI redesign to the Figma V1 design system, PTG-branded, Cloudflare hosting |
 
 ## Hosting
 
-Cloudflare Pages builds every push with `python3 build/build.py` and serves `dist/`. `main` is production; every other branch gets its own preview URL. The old GitHub Pages staging (`ci/staging`) is retired. Setup steps are in `docs/hosting-cloudflare.md`.
+Cloudflare (a Worker with Workers Builds) builds every push to `main` with `python3 build/build.py`, then `npx wrangler deploy` publishes `dist/` to `cutaway.sarvesh.co.uk`. Other branches aren't built. The old GitHub Pages staging (`ci/staging`) is retired. Setup steps are in `docs/hosting-cloudflare.md`.
 
 ## Useful commands
 
