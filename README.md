@@ -1,6 +1,6 @@
 # Building Cutaway
 
-A full-screen, scroll-driven cutaway of a five-storey apartment block for **Performance Technology Group (PTG)**. As you scroll, the façade is cut open, the camera pushes into the wall, and the 11 layers of the through-wall SFS system are named one by one. Select any layer for what it does and what it costs.
+A full-screen, scroll-driven cutaway of a five-storey apartment block for **Performance Technology Group (PTG)**. As you scroll, the façade is cut open, the camera pushes into the wall, and the nine layers of the through-wall SFS system are named one by one. Select any layer for what it does and what it costs.
 
 **Live:** https://cutaway.sarvesh.co.uk
 
@@ -71,12 +71,12 @@ Scroll length is 9 screens: the building holds until 0.7, the cutaway opens unti
 | 0.7 – 1.9 | 01 / 04 · The building envelope |
 | 1.9 – 3.2 | 02 / 04 · Through-wall SFS |
 | 3.2 – 5.4 | 03 / 04 · Built in layers |
-| 5.4 – 9 | 04 / 04 · 11 layers. One system. Layer chips appear one per step. |
+| 5.4 – 9 | 04 / 04 · nine layers. One system. Layer chips appear one per step. |
 | after 9 | Contact, with the frost back over the final frame |
 
 Click a chip or a marker to open the layer card. ← / → step through layers, Esc closes.
 
-**Data** (`src/data/layers.js`). Chapter copy and one entry per layer, outside to inside. Chapter body copy and costs are **placeholders**.
+**Data** (`src/data/layers.js`). Chapter copy and one entry per layer, numbered inside to outside (01–09), revealed outside to inside. Chapter body copy and costs are **placeholders**.
 
 ## Making a change
 

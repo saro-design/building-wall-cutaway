@@ -30,7 +30,7 @@ FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">\n'
          '<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
          '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">\n')
 # Engine config the UI owns: blend the phone layout into the page colour (paper)
-CONFIG = "window.CUTAWAY_CONFIG={narrowFade:['rgba(244,245,244,1)','rgba(244,245,244,1)']};"
+CONFIG = "window.CUTAWAY_CONFIG={focusX:[960,960],narrowFade:['rgba(244,245,244,1)','rgba(244,245,244,1)']};"
 HEADERS = ('/frames/*\n  Cache-Control: public, max-age=31536000, immutable\n'
            '/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n')
 

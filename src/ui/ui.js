@@ -1,5 +1,5 @@
 /*!
- * Building Cutaway — UI 1.2.0 (Figma V1 design system)
+ * Building Cutaway — UI 1.2.2 (Figma V1 design system)
  * Everything the visitor sees on top of the animation: frost hero, chapter captions,
  * layer chips, leader lines, markers, the layer card and the contact hand-off.
  * Reads the engine through window.Cutaway and the content through window.CUTAWAY_LAYERS.
@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  var UI_VERSION = '1.2.0';
+  var UI_VERSION = '1.2.2';
   var E = window.Cutaway, D = window.CUTAWAY_LAYERS;
   if (!E || !D) { console.warn('[Cutaway UI] engine or layer data missing'); return; }
   var clamp = E.util.clamp, ease = E.util.ease;
@@ -28,6 +28,8 @@
 
   var track = $('track'), stage = $('stage'), ui = $('ui'), frost = $('frost'), wash = $('wash'), hero = $('hero');
   var card = $('card'), svg = $('leaders'), sideL = $('sideL'), sideR = $('sideR');
+  var scrollCue = $('scroll');
+  var originalNarrowSpan = E.config.narrowSpan.slice();
 
   /* ---------- chapter captions ---------- */
   var chaps = D.chapters.map(function (c) {
@@ -66,15 +68,36 @@
   });
   order.forEach(function (i) { $('chips').appendChild(parts[i].chip); });   // DOM = visual order, top to bottom
 
-  /* chips sit on the image: right-aligned at labelX, each on its own labelY row,
-     so every leader runs straight across and then up or down to its anchor without crossing */
-  var narrow = false, maxW = 0;
+  /* Labels follow the Figma column; markers stay attached to image coordinates.
+     Separate right-angle risers keep the top two leaders clear of the caption. */
+  var narrow = false, labelTop = 340, labelStep = 52, gutter = 72;
   function layout() {
-    narrow = E.state.narrow; maxW = 0;
+    narrow = matchMedia(E.config.narrowQuery).matches;
     parts.forEach(function (p) {
-      p.w = p.chip.offsetWidth; p.h = p.chip.offsetHeight; maxW = Math.max(maxW, p.w);
+      p.w = p.chip.offsetWidth; p.h = p.chip.offsetHeight;
       if (narrow) p.chip.style.transform = '';
     });
+    /* Reserve actual reading/control space before sizing the image band.
+       The engine still owns projection, frames and timing; its public config
+       lets the UI fit that projection to phones and near-square windows. */
+    if (narrow) {
+      var width = stage.clientWidth, height = stage.clientHeight;
+      var chapterHeight = chaps.reduce(function (h, ch) {
+        return Math.max(h, ch.el.classList.contains('cw-top') ? 0 : ch.el.offsetHeight);
+      }, 0);
+      var reserve = Math.max($('chips').offsetHeight + 16, chapterHeight + 44) + 24;
+      E.config.narrowSpan = originalNarrowSpan.map(function (span, i) {
+        var top = i === 0 ? height * E.config.narrowTop[0] : Math.max(56, height * E.config.narrowTop[1]);
+        var imageHeight = Math.max(80, height - top - reserve);
+        return Math.max(span, width * IH / imageHeight);
+      });
+    } else E.config.narrowSpan = originalNarrowSpan.slice();
+    gutter = parseFloat(getComputedStyle(chaps[0].el).left) || 72;
+    if (!narrow) {
+      var topChapter = chaps.find(function (ch) { return !ch.drift; }).el;
+      labelTop = Math.max(340 * stage.clientHeight / 900, topChapter.offsetTop + topChapter.offsetHeight + 32);
+      labelStep = Math.min(52 * stage.clientHeight / 900, (stage.clientHeight - labelTop - 32 - 38) / (NL - 1));
+    }
     E.refresh();
   }
   addEventListener('resize', function () { requestAnimationFrame(layout); });
@@ -85,20 +108,21 @@
   function select(i) {
     if (i < 0) return deselect();
     sel = i; var l = L[i];
-    $('cEye').textContent = 'Layer ' + pad(i + 1) + ' of ' + NL + (i === 0 ? ' · outermost' : i === NL - 1 ? ' · innermost' : '');
+    $('cEye').textContent = 'Layer ' + pad(i + 1) + ' of ' + pad(NL) + (i === NL - 1 ? ' · outermost' : i === 0 ? ' · innermost' : '');
     $('cName').textContent = l.name;
     $('cDesc').textContent = l.description;
     var dl = $('cSpec'); dl.textContent = '';
     l.spec.forEach(function (p) { var row = el('div'); row.appendChild(el('dt', 'cw-ls', p[0])); row.appendChild(el('dd', '', p[1])); dl.appendChild(row); });
     $('cCost').textContent = D.currency + l.cost;
     $('cUnit').textContent = D.unit + ' · ' + Math.round(l.cost / TOTAL * 100) + '% of build-up';
-    $('cPrev').disabled = i === 0; $('cNext').disabled = i === NL - 1;
+    $('cPrev').disabled = i === NL - 1; $('cNext').disabled = i === 0;
     card.hidden = false;
     mark();
   }
   function deselect() {
-    var was = sel; sel = -1; card.hidden = true; mark();
-    if (was >= 0 && card.contains(document.activeElement)) parts[was].chip.focus();
+    var was = sel, restoreFocus = card.contains(document.activeElement);
+    sel = -1; card.hidden = true; mark();
+    if (was >= 0 && restoreFocus) parts[was].chip.focus({ preventScroll: true });
   }
   function mark() {
     parts.forEach(function (p, j) {
@@ -106,16 +130,18 @@
       p.chip.setAttribute('aria-pressed', on ? 'true' : 'false');
       p.mk.classList.toggle('cw-on', on);
       p.g.classList.toggle('cw-on', on);
+      p.w = p.chip.offsetWidth; p.h = p.chip.offsetHeight;
     });
     paint();
   }
-  $('cPrev').onclick = function () { if (sel > 0) select(sel - 1); };
-  $('cNext').onclick = function () { if (sel < NL - 1) select(sel + 1); };
+  $('cClose').onclick = deselect;
+  $('cPrev').onclick = function () { if (sel < NL - 1) select(sel + 1); };
+  $('cNext').onclick = function () { if (sel > 0) select(sel - 1); };
   addEventListener('keydown', function (e) {
     if (sel < 0 || e.altKey || e.ctrlKey || e.metaKey) return;
     if (e.key === 'Escape') deselect();
-    else if (e.key === 'ArrowLeft' && sel > 0) { e.preventDefault(); select(sel - 1); }
-    else if (e.key === 'ArrowRight' && sel < NL - 1) { e.preventDefault(); select(sel + 1); }
+    else if (e.key === 'ArrowLeft' && sel < NL - 1) { e.preventDefault(); select(sel + 1); }
+    else if (e.key === 'ArrowRight' && sel > 0) { e.preventDefault(); select(sel - 1); }
   });
 
   /* ---------- paint: called on every engine frame and on scroll past the track ---------- */
@@ -143,6 +169,8 @@
     hero.style.opacity = 1 - ht;
     hero.style.transform = reduce ? '' : 'translateY(' + (-56 * ht).toFixed(1) + 'px)';
     show(hero, ht < 0.995);
+    scrollCue.style.opacity = 1 - ht;
+    show(scrollCue, ht < 0.995);
 
     /* left wash for text legibility */
     wash.style.opacity = reduce ? (u > WASH[0] ? 1 : 0) : clamp((u - WASH[0]) / (WASH[1] - WASH[0]), 0, 1);
@@ -150,6 +178,7 @@
     /* side frost frames the cutaway from left and right as the camera pushes in */
     var fr = reduce ? (u > FRAME[0] ? 1 : 0) : ease(clamp((u - FRAME[0]) / (FRAME[1] - FRAME[0]), 0, 1));
     sideL.style.opacity = sideR.style.opacity = fr;
+    wash.style.setProperty('--cw-detail-wash', fr.toFixed(3));
     show(sideL, fr > 0.004); show(sideR, fr > 0.004);
 
     /* whole overlay steps back as the contact section arrives */
@@ -176,31 +205,44 @@
     var anyOn = sel >= 0;
     stage.style.setProperty('--cw-img-bottom', (s.view.oy + IH * s.view.s) + 'px');
     parts.forEach(function (p, i) {
-      var r = revealAt(u, i);
+      var r = revealAt(u, NL - 1 - i);
       if (reduce) r = r > 0 ? 1 : 0;
       var a = E.project(L[i].anchor[0], L[i].anchor[1]);
 
       var co = clamp((r - 0.2) / 0.5, 0, 1) * (anyOn && i !== sel ? 0.8 : 1);
-      p.chip.style.opacity = co; show(p.chip, r > 0.2);
+      p.chip.style.opacity = co; show(p.chip, r > 0.2 && fc < 0.99);
+      p.chip.tabIndex = r > 0.2 && fc < 0.99 ? 0 : -1;
 
       var mo = clamp((r - 0.8) / 0.2, 0, 1);
       p.mk.style.opacity = mo;
       p.mk.style.transform = 'translate(' + (a.x - 22).toFixed(1) + 'px,' + (a.y - 22).toFixed(1) + 'px) scale(' + (0.6 + 0.4 * ease(mo)).toFixed(3) + ')';
-      show(p.mk, mo > 0);
+      show(p.mk, mo > 0 && fc < 0.99);
 
       if (narrow) return;
-      var lb = E.project(D.labelX, L[i].labelY);
-      var right = Math.max(lb.x, maxW + 16);                 // never push a chip off the left edge
-      p.chip.style.transform = 'translate(' + Math.round(right - p.w) + 'px,' + Math.round(lb.y - p.h / 2) + 'px)';
-      var x0 = right + 12, y0 = lb.y.toFixed(1);
-      var pts = x0.toFixed(1) + ',' + y0 + ' ' + a.x.toFixed(1) + ',' + y0 + ' ' + a.x.toFixed(1) + ',' + a.y.toFixed(1);
-      var len = Math.abs(a.x - x0) + Math.abs(a.y - lb.y);
+      var x = gutter;
+      var y = labelTop + rank[i] * labelStep;
+      p.chip.style.transform = 'translate(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px)';
+      var x0 = x + p.w + 12, y0 = y + p.h / 2;
+      var points = [[x0, y0]];
+      if (L[i].leaderBendX != null) {
+        var sx = stage.clientWidth / 1440;
+        // Separate risers clear both caption text and each other on short desktops.
+        var bend = L[i].leaderBendX * sx;
+        if (stage.clientWidth < 1360) bend = Math.max(bend, x + 456 + 20 + i * 40);
+        points.push([bend, y0], [bend, a.y]);
+      } else points.push([a.x, y0]);
+      points.push([a.x, a.y]);
+      var pts = points.map(function (point) { return point[0].toFixed(1) + ',' + point[1].toFixed(1); }).join(' ');
+      var len = points.reduce(function (sum, point, k) {
+        return k ? sum + Math.abs(point[0] - points[k - 1][0]) + Math.abs(point[1] - points[k - 1][1]) : 0;
+      }, 0);
       var off = (len * (1 - ease(r))).toFixed(1);
       [p.halo, p.line].forEach(function (pl) {
         pl.setAttribute('points', pts);
         pl.style.strokeDasharray = len.toFixed(1); pl.style.strokeDashoffset = off;
       });
-      p.g.style.visibility = r > 0 ? 'visible' : 'hidden';
+      p.g.style.visibility = r > 0 && fc < 0.99 ? 'visible' : 'hidden';
+      p.g.style.opacity = anyOn && i !== sel ? 0.25 : 0.8;
     });
   }
 

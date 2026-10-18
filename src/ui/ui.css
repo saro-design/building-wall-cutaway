@@ -1,4 +1,4 @@
-/* Building Cutaway — UI 1.2.0 · Figma V1 design system (PTG) */
+/* Building Cutaway — UI 1.2.2 · Figma V1 design system (PTG) */
 :root{
   color-scheme:light;
   /* Primary — PTG logo */
@@ -22,7 +22,7 @@
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-behavior:smooth}
 html,body{background:var(--paper);color:var(--text)}
-body{margin:0;font:400 16px/1.6 var(--font);letter-spacing:-.01em;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11"}
+body{margin:0;overflow-x:hidden;font:400 16px/1.6 var(--font);letter-spacing:-.01em;-webkit-font-smoothing:antialiased;font-feature-settings:"cv11"}
 img{display:block}
 p,h1,h2,h3,dl,dd{margin:0}
 
@@ -51,7 +51,7 @@ p,h1,h2,h3,dl,dd{margin:0}
 .cw-skiplink:focus{top:16px}
 
 /* ---------- nav ---------- */
-.cw-nav{position:fixed;z-index:20;left:0;right:0;top:0;height:96px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
+.cw-nav{width:100vw;position:fixed;z-index:20;left:0;right:0;top:0;height:96px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;pointer-events:none}
 .cw-pill{pointer-events:auto;background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-radius:999px}
 .cw-logo{padding:8px 20px;transition:box-shadow .15s}
 .cw-logo img{width:115px;height:48px;object-fit:contain}
@@ -61,29 +61,38 @@ p,h1,h2,h3,dl,dd{margin:0}
 
 /* ---------- stage (canvas is fixed; the track only provides scroll length) ---------- */
 #cw-track{position:relative}
-#cw-stage{position:fixed;inset:0;height:100vh;height:100svh;overflow:hidden;background:var(--paper)}
+#cw-stage{width:100vw;position:fixed;inset:0;height:100vh;height:100svh;overflow:hidden;background:var(--paper)}
 canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
-.cw-wash{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(90deg,rgb(244 245 244/.92) 0%,rgb(244 245 244/.72) 30%,transparent 55%)}
-/* side frost: blurred, paper-tinted edges that frame the cutaway (fades in with the push) */
+.cw-wash{position:absolute;inset:0;pointer-events:none;opacity:0}
+.cw-wash::before{content:"";position:absolute;inset:0;opacity:calc(1 - var(--cw-detail-wash,0));background:linear-gradient(90deg,rgb(244 245 244/.92) 0%,rgb(244 245 244/.72) 30%,transparent 55%)}
+/* Strong paper frost from Figma; it fades in over the early chapter wash. */
+.cw-wash::after{content:"";position:absolute;inset:0;opacity:var(--cw-detail-wash,0);background:linear-gradient(90deg,var(--paper) 0%,rgb(244 245 244/.995) 22%,rgb(244 245 244/.98) 29%,rgb(244 245 244/.88) 35%,rgb(244 245 244/.56) 41%,rgb(244 245 244/.16) 47%,transparent 54%)}
+/* A masked blur approximates Figma's progressive 40 -> 0 px frost. */
 .cw-side{position:absolute;top:0;bottom:0;pointer-events:none;opacity:0;-webkit-backdrop-filter:blur(22px);backdrop-filter:blur(22px)}
-.cw-side-l{left:0;width:40%;background:linear-gradient(90deg,rgb(244 245 244/.88) 0%,rgb(244 245 244/.6) 55%,rgb(244 245 244/.15) 100%);-webkit-mask-image:linear-gradient(90deg,#000 55%,transparent 100%);mask-image:linear-gradient(90deg,#000 55%,transparent 100%)}
-.cw-side-r{right:0;width:24%;background:rgb(244 245 244/.35);-webkit-mask-image:linear-gradient(270deg,#000 35%,transparent 100%);mask-image:linear-gradient(270deg,#000 35%,transparent 100%)}
+.cw-side-l{left:0;width:54%;-webkit-backdrop-filter:blur(40px);backdrop-filter:blur(40px);-webkit-mask-image:linear-gradient(90deg,#000 0%,transparent 100%);mask-image:linear-gradient(90deg,#000 0%,transparent 100%)}
+.cw-side-r{display:none}
 .cw-frost{position:absolute;inset:0;pointer-events:none;background:var(--frost);-webkit-backdrop-filter:blur(64px);backdrop-filter:blur(64px)}
 .cw-ui{position:absolute;inset:0;pointer-events:none}
 
 /* hero */
 .cw-hero{position:absolute;top:0;bottom:0;left:var(--gutter);display:flex;flex-direction:column;justify-content:center;gap:20px;width:calc(var(--fs-xl) * 7.73);max-width:calc(100% - 2 * var(--gutter));pointer-events:none}
 
+/* Landing cue: a quiet right-side label that leaves with the hero. */
+.cw-scroll{position:absolute;right:var(--gutter);top:calc(50% - 44px);display:flex;align-items:center;justify-content:center;width:132px;height:44px;gap:6px;color:var(--text-2);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+.cw-scroll-label{flex:none;width:97px;white-space:nowrap}
+.cw-scroll-icon{flex:none;width:23px;font-size:24px;line-height:1.4}
+
 /* chapter captions */
 .cw-chap{position:absolute;left:var(--gutter);top:57.8%;width:calc(var(--fs-l) * 8.15);max-width:calc(100% - 2 * var(--gutter));display:flex;flex-direction:column;gap:16px;pointer-events:none;visibility:hidden}
-.cw-chap.cw-top{top:96px}
+.cw-chap.cw-top{top:96px;width:456px}
+.cw-chap>.cw-eyebrow{min-height:24px}
 .cw-chap .cw-bl{max-width:456px}
 
-/* leaders: orthogonal, 1.5px charcoal at 80% on a 2px paper halo */
+/* Leaders: straight/right-angle, 1.5 px charcoal; opacity follows selection. */
 .cw-leaders{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.cw-leaders polyline{fill:none;stroke-linejoin:round}
-.cw-leaders .cw-halo{stroke:var(--paper);stroke-width:5.5}
-.cw-leaders .cw-line{stroke:var(--charcoal);stroke-opacity:.8;stroke-width:1.5}
+.cw-leaders polyline{fill:none;stroke-linejoin:miter}
+.cw-leaders .cw-halo{stroke:none}
+.cw-leaders .cw-line{stroke:var(--charcoal);stroke-width:1.5}
 .cw-leaders .cw-on .cw-line{stroke-opacity:1}
 
 /* markers: 44×44 hit area, art from Figma */
@@ -95,18 +104,24 @@ canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 
 /* layer chips */
 .cw-chips{position:absolute;inset:0;pointer-events:none}
-.cw-chip{position:absolute;left:0;top:0;display:flex;align-items:center;gap:10px;padding:6px 16px 6px 6px;border-radius:999px;border:1px solid var(--line);background:var(--glass);color:var(--text);font:500 13px/1.4 var(--font);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;cursor:pointer;pointer-events:auto;visibility:hidden;transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s}
-.cw-chip .cw-n{flex:none;display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:var(--paper);color:var(--text);font-size:12px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
-.cw-chip:hover{border-color:var(--charcoal)}
-.cw-chip[aria-pressed="true"]{background:var(--charcoal);border-color:var(--charcoal);color:var(--text-inverse)}
+.cw-chip{position:absolute;left:0;top:0;display:flex;align-items:center;gap:10px;padding:6px 16px 6px 6px;border-radius:999px;height:38px;border:1px solid var(--navy);background:var(--navy);color:var(--text-inverse);font:500 13px/1.4 var(--font);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;cursor:pointer;pointer-events:auto;visibility:hidden;transition:background-color .15s,border-color .15s,color .15s,box-shadow .15s}
+.cw-chip .cw-n{flex:none;display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:999px;background:var(--paper);color:var(--navy);font-size:12px;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.cw-chip:hover{box-shadow:inset 0 0 0 1px var(--paper)}
+.cw-chip[aria-pressed="true"]{height:36px;padding:5px 15px 5px 5px;background:var(--navy);border-color:var(--navy);color:var(--text-inverse)}
 .cw-chip[aria-pressed="true"] .cw-n{background:var(--accent);color:var(--charcoal)}
 
 /* layer card */
-.cw-card{position:absolute;top:154px;right:16px;width:400px;max-width:calc(100% - 32px);max-height:calc(100% - 170px);overflow:auto;display:flex;flex-direction:column;gap:16px;padding:32px;border-radius:24px;background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);pointer-events:auto}
+.cw-card{position:absolute;top:154px;right:10px;width:400px;max-width:calc(100% - 32px);max-height:calc(100% - 170px);overflow:auto;display:flex;flex-direction:column;gap:16px;padding:32px;border-radius:24px;background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);pointer-events:auto}
 .cw-card[hidden]{display:none}
+.cw-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;}
+.cw-card-head .cw-eyebrow{min-width:0;flex:1}
+.cw-close{flex:none;justify-content:center;gap:6px;width:88px;height:44px;padding:9px 11px 9px 14px;border:1px solid var(--charcoal);background:transparent;color:var(--text)}
+.cw-close:hover{background:var(--paper)}
+.cw-close-label{flex:none;width:43px;height:18px;font-size:12px;line-height:1.4}
+.cw-close-icon{flex:none;width:12px;height:28px;font-size:18px;line-height:1.4}
 .cw-spec{display:flex;flex-direction:column;gap:8px}
 .cw-spec div{display:flex;gap:12px;align-items:baseline}
-.cw-spec dt{flex:none;width:90px;color:var(--text-2)}
+.cw-spec dt{flex:none;color:var(--text-2)}
 .cw-spec dd{font-size:14px;line-height:1.55;letter-spacing:-.005em}
 .cw-rule{border:0;height:1px;background:var(--line);margin:0;width:100%}
 .cw-price{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -131,13 +146,15 @@ canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
   .cw-link{display:none}
   .cw-wash,.cw-leaders,.cw-side{display:none}
   .cw-hero{width:auto;right:var(--gutter)}
+  .cw-scroll{top:auto;bottom:32px}
   .cw-chap{top:calc(var(--cw-img-bottom,60vh) + 20px);width:auto;right:var(--gutter)}
   .cw-chap.cw-top{display:none}
   .cw-chap .cw-bl{font-size:16px}
-  .cw-chips{position:absolute;inset:auto 12px auto 12px;top:calc(var(--cw-img-bottom,55vh) + 16px);display:flex;flex-wrap:wrap;gap:6px}
-  .cw-chip{position:static;transform:none!important;font-size:12px;padding:4px 12px 4px 4px;gap:8px}
+  .cw-chips{max-width:900px;position:absolute;inset:auto 12px auto 12px;top:calc(var(--cw-img-bottom,55vh) + 16px);display:flex;flex-wrap:wrap;gap:6px}
+  .cw-chip{height:auto;position:static;transform:none!important;font-size:12px;padding:4px 12px 4px 4px;gap:8px}
+  .cw-chip[aria-pressed="true"]{height:auto;padding:4px 12px 4px 4px}
   .cw-chip .cw-n{width:22px;height:22px}
-  .cw-card{top:auto;bottom:8px;left:8px;right:8px;width:auto;max-width:none;max-height:62vh;padding:20px;gap:12px}
+  .cw-card{height:495px;top:auto;bottom:8px;left:8px;right:8px;width:auto;max-width:none;max-height:62vh;padding:20px;gap:12px}
   .cw-card .cw-dl{font-size:40px}
   .cw-contact{padding-top:104px}
 }

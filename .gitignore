@@ -13,3 +13,7 @@ Thumbs.db
 desktop.ini
 .vscode/
 __pycache__/
+
+# Local tool caches (cf CLI account cache, Wrangler state) — never commit
+.cloudflare/
+.wrangler/
