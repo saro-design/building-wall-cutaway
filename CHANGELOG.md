@@ -2,6 +2,15 @@
 
 Versions: `MAJOR.MINOR.PATCH`. MAJOR = engine or animation changes. MINOR = UI redesign or new feature. PATCH = fixes and copy.
 
+## v1.2.2 — 18 Oct 2026
+
+- Match Sarvesh's edited Figma review screen: nine navy labels, white text, revised material markers and straight/right-angle leaders.
+- Remove SFS head/base track annotations. Number 01 Plasterboard through 09 Cladding; preserve the outside-to-inside reveal and correct Outer/Inner navigation.
+- Use the edited Default Close button's separate 12 px label and 18 px × in every interaction state; move the landing scroll cue to the middle-right with separate 24 px arrow.
+- Strengthen the paper wash with a soft masked blur. Match the centred desktop render through the existing public configuration.
+- Keep the chapter-04 heading through exploration, and keep hidden contact-stage annotations out of the keyboard route.
+- Engine source, 198 frames and scroll timing are unchanged.
+
 ## v1.2.1 — 18 Oct 2026
 
 - Fit the narrow-layout image to the space left by chapter captions and the complete chip list, including near-square windows.
