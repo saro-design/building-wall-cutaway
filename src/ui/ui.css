@@ -74,6 +74,10 @@ canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 /* hero */
 .cw-hero{position:absolute;top:0;bottom:0;left:var(--gutter);display:flex;flex-direction:column;justify-content:center;gap:20px;width:calc(var(--fs-xl) * 7.73);max-width:calc(100% - 2 * var(--gutter));pointer-events:none}
 
+/* Landing cue: a quiet right-side label that leaves with the hero. */
+.cw-scroll{position:absolute;right:var(--gutter);bottom:72px;display:flex;align-items:center;justify-content:center;width:132px;min-height:44px;gap:12px;color:var(--text-2);font-size:12px;font-weight:500;line-height:1.4;letter-spacing:.06em;text-transform:uppercase;pointer-events:none}
+.cw-scroll span{font-size:24px;line-height:1}
+
 /* chapter captions */
 .cw-chap{position:absolute;left:var(--gutter);top:57.8%;width:calc(var(--fs-l) * 8.15);max-width:calc(100% - 2 * var(--gutter));display:flex;flex-direction:column;gap:16px;pointer-events:none;visibility:hidden}
 .cw-chap.cw-top{top:96px}
@@ -104,6 +108,11 @@ canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
 /* layer card */
 .cw-card{position:absolute;top:154px;right:16px;width:400px;max-width:calc(100% - 32px);max-height:calc(100% - 170px);overflow:auto;display:flex;flex-direction:column;gap:16px;padding:32px;border-radius:24px;background:var(--glass);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);pointer-events:auto}
 .cw-card[hidden]{display:none}
+.cw-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;}
+.cw-card-head .cw-eyebrow{min-width:0;flex:1}
+.cw-close{flex:none;justify-content:center;gap:8px;width:88px;min-height:44px;padding:10px 12px;border:1px solid var(--charcoal);background:transparent;color:var(--text)}
+.cw-close:hover{background:var(--paper)}
+.cw-close span{font-size:18px;line-height:1}
 .cw-spec{display:flex;flex-direction:column;gap:8px}
 .cw-spec div{display:flex;gap:12px;align-items:baseline}
 .cw-spec dt{flex:none;width:90px;color:var(--text-2)}
@@ -131,6 +140,7 @@ canvas#cw-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
   .cw-link{display:none}
   .cw-wash,.cw-leaders,.cw-side{display:none}
   .cw-hero{width:auto;right:var(--gutter)}
+  .cw-scroll{bottom:32px}
   .cw-chap{top:calc(var(--cw-img-bottom,60vh) + 20px);width:auto;right:var(--gutter)}
   .cw-chap.cw-top{display:none}
   .cw-chap .cw-bl{font-size:16px}

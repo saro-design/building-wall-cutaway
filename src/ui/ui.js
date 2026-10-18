@@ -7,7 +7,7 @@
 (function () {
   'use strict';
 
-  var UI_VERSION = '1.2.0';
+  var UI_VERSION = '1.2.1';
   var E = window.Cutaway, D = window.CUTAWAY_LAYERS;
   if (!E || !D) { console.warn('[Cutaway UI] engine or layer data missing'); return; }
   var clamp = E.util.clamp, ease = E.util.ease;
@@ -28,6 +28,8 @@
 
   var track = $('track'), stage = $('stage'), ui = $('ui'), frost = $('frost'), wash = $('wash'), hero = $('hero');
   var card = $('card'), svg = $('leaders'), sideL = $('sideL'), sideR = $('sideR');
+  var scrollCue = $('scroll');
+  var originalNarrowSpan = E.config.narrowSpan.slice();
 
   /* ---------- chapter captions ---------- */
   var chaps = D.chapters.map(function (c) {
@@ -70,11 +72,26 @@
      so every leader runs straight across and then up or down to its anchor without crossing */
   var narrow = false, maxW = 0;
   function layout() {
-    narrow = E.state.narrow; maxW = 0;
+    narrow = matchMedia(E.config.narrowQuery).matches; maxW = 0;
     parts.forEach(function (p) {
       p.w = p.chip.offsetWidth; p.h = p.chip.offsetHeight; maxW = Math.max(maxW, p.w);
       if (narrow) p.chip.style.transform = '';
     });
+    /* Reserve actual reading/control space before sizing the image band.
+       The engine still owns projection, frames and timing; its public config
+       lets the UI fit that projection to phones and near-square windows. */
+    if (narrow) {
+      var width = stage.clientWidth, height = stage.clientHeight;
+      var chapterHeight = chaps.reduce(function (h, ch) {
+        return Math.max(h, ch.el.classList.contains('cw-top') ? 0 : ch.el.offsetHeight);
+      }, 0);
+      var reserve = Math.max($('chips').offsetHeight + 16, chapterHeight + 44) + 24;
+      E.config.narrowSpan = originalNarrowSpan.map(function (span, i) {
+        var top = i === 0 ? height * E.config.narrowTop[0] : Math.max(56, height * E.config.narrowTop[1]);
+        var imageHeight = Math.max(80, height - top - reserve);
+        return Math.max(span, width * IH / imageHeight);
+      });
+    } else E.config.narrowSpan = originalNarrowSpan.slice();
     E.refresh();
   }
   addEventListener('resize', function () { requestAnimationFrame(layout); });
@@ -97,8 +114,9 @@
     mark();
   }
   function deselect() {
-    var was = sel; sel = -1; card.hidden = true; mark();
-    if (was >= 0 && card.contains(document.activeElement)) parts[was].chip.focus();
+    var was = sel, restoreFocus = card.contains(document.activeElement);
+    sel = -1; card.hidden = true; mark();
+    if (was >= 0 && restoreFocus) parts[was].chip.focus({ preventScroll: true });
   }
   function mark() {
     parts.forEach(function (p, j) {
@@ -109,6 +127,7 @@
     });
     paint();
   }
+  $('cClose').onclick = deselect;
   $('cPrev').onclick = function () { if (sel > 0) select(sel - 1); };
   $('cNext').onclick = function () { if (sel < NL - 1) select(sel + 1); };
   addEventListener('keydown', function (e) {
@@ -143,6 +162,8 @@
     hero.style.opacity = 1 - ht;
     hero.style.transform = reduce ? '' : 'translateY(' + (-56 * ht).toFixed(1) + 'px)';
     show(hero, ht < 0.995);
+    scrollCue.style.opacity = 1 - ht;
+    show(scrollCue, ht < 0.995);
 
     /* left wash for text legibility */
     wash.style.opacity = reduce ? (u > WASH[0] ? 1 : 0) : clamp((u - WASH[0]) / (WASH[1] - WASH[0]), 0, 1);

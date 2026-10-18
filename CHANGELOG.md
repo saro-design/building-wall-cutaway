@@ -2,6 +2,13 @@
 
 Versions: `MAJOR.MINOR.PATCH`. MAJOR = engine or animation changes. MINOR = UI redesign or new feature. PATCH = fixes and copy.
 
+## v1.2.1 — 18 Oct 2026
+
+- Fit the narrow-layout image to the space left by chapter captions and the complete chip list, including near-square windows.
+- Add a visible, labelled Close control to the layer card; restore focus without moving the page.
+- Add a right-aligned “Scroll down ↓” landing cue that fades with the hero.
+- Keep the animation engine source, frame sequence and scroll timing unchanged.
+
 ## v1.2.0 — 12 Oct 2026
 
 UI redesign to Figma V1 design system. PTG-branded; hosted on Cloudflare Pages.
